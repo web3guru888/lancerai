@@ -11,8 +11,11 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { LancerAgent, Job, JobType, SERVICE_CATALOG } from '../agent/agent.js';
-import { WalletService, DeployService, CheckoutService } from '../locus/index.js';
+import { WalletService, DeployService, CheckoutService, WrappedApiService } from '../locus/index.js';
 import { randomUUID } from 'crypto';
+
+const APP_VERSION = '0.4.0';
+const startTime = Date.now();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -41,6 +44,44 @@ app.use(express.static(join(__dirname, 'public')));
 const agent = new LancerAgent();
 const wallet = new WalletService();
 const deployService = new DeployService();
+
+// ── Helper Functions ───────────────────────────────────────────────────────────
+
+function formatUptime(seconds: number): string {
+  const d = Math.floor(seconds / 86400);
+  const h = Math.floor((seconds % 86400) / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  const parts: string[] = [];
+  if (d > 0) parts.push(`${d}d`);
+  if (h > 0) parts.push(`${h}h`);
+  if (m > 0) parts.push(`${m}m`);
+  parts.push(`${s}s`);
+  return parts.join(' ');
+}
+
+function parseWrappedCatalog(markdown: string): Array<{ provider: string; category: string; endpoints: string[]; description: string; docsUrl: string }> {
+  const providers: Array<{ provider: string; category: string; endpoints: string[]; description: string; docsUrl: string }> = [];
+  const lines = markdown.split('\n');
+
+  for (const line of lines) {
+    // Match table rows: | [Provider](url) | Category | Endpoints | Description |
+    const match = line.match(/^\|\s*\[([^\]]+)\]\(([^)]+)\)\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|/);
+    if (match) {
+      const [, provider, docsUrl, category, endpointsStr, description] = match;
+      const endpoints = endpointsStr.split(',').map(e => e.trim()).filter(Boolean);
+      providers.push({
+        provider: provider.trim(),
+        category: category.trim(),
+        endpoints,
+        description: description.trim(),
+        docsUrl: docsUrl.trim(),
+      });
+    }
+  }
+
+  return providers;
+}
 
 // Audit log for demo
 const auditLog: Array<{
@@ -74,8 +115,24 @@ app.use((req, res, next) => {
 // Health Check (required for BuildWithLocus)
 // ==========================================
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+app.get('/health', async (req, res) => {
+  let walletBalance: string | null = null;
+  try {
+    const bal = await wallet.getBalance();
+    walletBalance = bal?.usdc_balance ?? null;
+  } catch { /* non-critical */ }
+
+  res.json({
+    status: 'healthy',
+    version: APP_VERSION,
+    uptime: process.uptime(),
+    uptimeHuman: formatUptime(process.uptime()),
+    timestamp: new Date().toISOString(),
+    demoMode: process.env.DEMO_MODE === 'true',
+    wallet: walletBalance,
+    services: SERVICE_CATALOG.length,
+    wrappedApis: 299,
+  });
 });
 
 app.get('/api/health', (req, res) => {
@@ -84,14 +141,232 @@ app.get('/api/health', (req, res) => {
     data: {
       status: 'healthy',
       uptime: process.uptime(),
+      uptimeHuman: formatUptime(process.uptime()),
       timestamp: new Date().toISOString(),
-      version: '0.3.0',
+      version: APP_VERSION,
       environment: process.env.NODE_ENV || 'development',
       demoMode: process.env.DEMO_MODE === 'true',
       wrappedApiCount: 299,
       services: SERVICE_CATALOG.length,
     },
   });
+});
+
+// ==========================================
+// llms.txt — Machine-readable agent description
+// ==========================================
+
+app.get('/.well-known/llms.txt', (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const llmsTxt = `# LancerAI — Autonomous AI Freelancer Agent
+# ${baseUrl}
+# Powered by Locus • USDC on Base
+
+> LancerAI is a machine-payable autonomous AI agent that performs freelance work
+> for other agents and humans. It accepts USDC payments on Base via Locus Checkout,
+> executes jobs using 299+ wrapped APIs, and can hire human freelancers when needed.
+
+## Services & Pricing (USDC)
+
+- web_research: $0.50 — Multi-source web research with citations
+- content_creation: $1.00 — Articles, blog posts, marketing copy
+- data_analysis: $0.75 — Data processing, insights, visualization
+- translation: $0.50 — Professional translation (30+ languages via DeepL)
+- website_deployment: $2.00 — Deploy apps via BuildWithLocus
+- image_generation: $0.25 — AI image generation (FLUX, Stable Diffusion)
+- code_execution: $0.10 — Run code in 60+ languages (sandboxed)
+- crypto_analysis: $0.50 — Market data, price analysis, trends
+- human_task: $5.00 — Hire human freelancers via Locus Fiverr
+- custom: $1.00 — Custom tasks (describe what you need)
+
+## How to Hire LancerAI
+
+### 1. Submit a Job
+POST ${baseUrl}/api/jobs
+Content-Type: application/json
+
+{"type": "web_research", "description": "Research the latest AI agent frameworks", "budget": 1.00}
+
+### 2. Pay via Locus Checkout
+POST ${baseUrl}/api/checkout/create
+Content-Type: application/json
+
+{"amount": "1.00", "description": "Web research job"}
+
+### 3. Machine-Payable Endpoints (x402)
+POST ${baseUrl}/api/x402/research  — {"query": "..."}
+POST ${baseUrl}/api/x402/content   — {"prompt": "..."}
+POST ${baseUrl}/api/x402/deploy    — {"repoUrl": "...", "projectName": "..."}
+
+## API Endpoints
+
+- GET  ${baseUrl}/api/status — Agent status and capabilities
+- GET  ${baseUrl}/api/services — Full service catalog
+- GET  ${baseUrl}/api/agent-info — Machine-readable agent metadata (JSON)
+- GET  ${baseUrl}/api/wrapped-catalog — Browse 299 available APIs
+- GET  ${baseUrl}/api/catalog — Dynamic API catalog from Locus
+- POST ${baseUrl}/api/jobs — Submit a job
+- GET  ${baseUrl}/api/jobs — List jobs
+- GET  ${baseUrl}/api/wallet — Wallet balance
+- GET  ${baseUrl}/api/transactions — Transaction history
+- GET  ${baseUrl}/health — Service health
+
+## Payment
+- Currency: USDC
+- Network: Base (ERC-4337 smart wallet)
+- Wallet: ${process.env.LOCUS_WALLET_ADDRESS || '0x...'}
+- Checkout: Locus Checkout SDK
+- Protocol: x402 / MPP compatible
+
+## Technical
+- Version: ${APP_VERSION}
+- Runtime: Node.js + Express
+- Deployment: BuildWithLocus
+- Source: TypeScript
+`;
+  res.type('text/plain').send(llmsTxt);
+});
+
+// ==========================================
+// Agent Info — Machine-readable capabilities
+// ==========================================
+
+app.get('/api/agent-info', (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  res.json({
+    success: true,
+    data: {
+      name: 'LancerAI',
+      version: APP_VERSION,
+      description: 'Autonomous AI freelancer agent — accepts USDC payments on Base, executes jobs using 299+ APIs, and can hire human freelancers when needed.',
+      type: 'ai-agent',
+      status: 'online',
+      demoMode: process.env.DEMO_MODE === 'true',
+
+      capabilities: SERVICE_CATALOG.map(s => ({
+        id: s.id,
+        name: s.name,
+        description: s.description,
+        price_usdc: s.price,
+      })),
+
+      payment: {
+        currency: 'USDC',
+        network: 'Base',
+        walletType: 'ERC-4337 Smart Wallet',
+        walletAddress: process.env.LOCUS_WALLET_ADDRESS || null,
+        checkoutEndpoint: `${baseUrl}/api/checkout/create`,
+        protocols: ['locus-checkout', 'x402', 'mpp'],
+      },
+
+      api: {
+        baseUrl,
+        submitJob: `POST ${baseUrl}/api/jobs`,
+        listJobs: `GET ${baseUrl}/api/jobs`,
+        services: `GET ${baseUrl}/api/services`,
+        health: `GET ${baseUrl}/health`,
+        llmsTxt: `GET ${baseUrl}/.well-known/llms.txt`,
+        machinePay: {
+          research: `POST ${baseUrl}/api/x402/research`,
+          content: `POST ${baseUrl}/api/x402/content`,
+          deploy: `POST ${baseUrl}/api/x402/deploy`,
+        },
+      },
+
+      tooling: {
+        wrappedApis: 299,
+        categories: ['AI/LLMs', 'Search', 'Web Scraping', 'Code Execution', 'Translation', 'Image Generation', 'Crypto Data', 'Email', 'Finance'],
+        humanEscalation: true,
+        humanProvider: 'Locus Fiverr Marketplace',
+      },
+
+      links: {
+        dashboard: baseUrl,
+        catalog: `${baseUrl}/api/wrapped-catalog`,
+        docs: 'https://docs.paywithlocus.com',
+        locus: 'https://beta.paywithlocus.com',
+      },
+    },
+  });
+});
+
+// ==========================================
+// Transactions — Real Locus transaction history
+// ==========================================
+
+app.get('/api/transactions', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 20;
+    const status = req.query.status as string | undefined;
+    const transactions = await wallet.getTransactions(limit, status);
+    res.json({
+      success: true,
+      data: {
+        transactions,
+        count: transactions.length,
+        limit,
+        source: 'locus-api',
+      },
+    });
+  } catch (err: any) {
+    console.error(`[API] Transactions error: ${err.message}`);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+      data: { transactions: [], count: 0 },
+    });
+  }
+});
+
+// ==========================================
+// Dynamic Catalog — Live from Locus
+// ==========================================
+
+let catalogCache: { data: any; fetchedAt: number } | null = null;
+const CATALOG_CACHE_TTL = 300_000; // 5 minutes
+
+app.get('/api/catalog', async (req, res) => {
+  try {
+    const now = Date.now();
+    if (catalogCache && (now - catalogCache.fetchedAt) < CATALOG_CACHE_TTL) {
+      return res.json({
+        success: true,
+        data: { ...catalogCache.data, cached: true },
+      });
+    }
+
+    // Fetch live catalog from Locus
+    const response = await fetch('https://beta.paywithlocus.com/wapi/index.md');
+    const markdown = await response.text();
+
+    // Parse the markdown table into structured data
+    const providers = parseWrappedCatalog(markdown);
+
+    catalogCache = {
+      data: {
+        providers,
+        totalProviders: providers.length,
+        totalEndpoints: providers.reduce((sum: number, p: any) => sum + p.endpoints.length, 0),
+        source: 'https://beta.paywithlocus.com/wapi/index.md',
+        fetchedAt: new Date().toISOString(),
+      },
+      fetchedAt: now,
+    };
+
+    res.json({ success: true, data: { ...catalogCache.data, cached: false } });
+  } catch (err: any) {
+    console.error(`[API] Catalog fetch error: ${err.message}`);
+    // Fall back to static wrapped catalog
+    const wrappedService = new WrappedApiService();
+    res.json({
+      success: true,
+      data: {
+        providers: wrappedService.getAvailableApis(),
+        fallback: true,
+        error: err.message,
+      },
+    });
+  }
 });
 
 // ==========================================
@@ -102,20 +377,25 @@ app.get('/', (req, res) => {
   if (req.headers.accept?.includes('application/json') && !req.headers.accept?.includes('text/html')) {
     return res.json({
       name: 'LancerAI',
-      version: '0.3.0',
+      version: APP_VERSION,
       description: 'Autonomous AI Agent Freelancer — Powered by Locus on Base',
       status: 'online',
       demoMode: process.env.DEMO_MODE === 'true',
       dashboard: '/ (this page, in a browser)',
       endpoints: {
-        health: 'GET /api/health',
+        health: 'GET /health',
+        healthDetailed: 'GET /api/health',
         status: 'GET /api/status',
         services: 'GET /api/services',
+        agentInfo: 'GET /api/agent-info',
+        llmsTxt: 'GET /.well-known/llms.txt',
         wrappedCatalog: 'GET /api/wrapped-catalog',
+        dynamicCatalog: 'GET /api/catalog',
         submitJob: 'POST /api/jobs',
         listJobs: 'GET /api/jobs',
         getJob: 'GET /api/jobs/:id',
         wallet: 'GET /api/wallet',
+        transactions: 'GET /api/transactions',
         deployments: 'GET /api/deployments',
         deploy: 'POST /api/deploy',
       },
@@ -680,11 +960,15 @@ app.use('/api/*', (req, res) => {
     error: 'NOT_FOUND',
     message: `No endpoint at ${req.method} ${req.path}`,
     availableEndpoints: {
-      'GET /health': 'Health check (BuildWithLocus)',
+      'GET /health': 'Health check + wallet + uptime (BuildWithLocus)',
       'GET /api/health': 'Health check (detailed)',
       'GET /api/status': 'Agent status',
       'GET /api/services': 'Service catalog (10 services)',
-      'GET /api/wrapped-catalog': 'Browse all 299 Locus wrapped APIs',
+      'GET /api/agent-info': 'Machine-readable agent metadata (JSON)',
+      'GET /.well-known/llms.txt': 'LLM-discoverable agent description',
+      'GET /api/wrapped-catalog': 'Browse all 299 Locus wrapped APIs (static)',
+      'GET /api/catalog': 'Dynamic API catalog from Locus (live)',
+      'GET /api/transactions': 'Locus transaction history',
       'POST /api/jobs': 'Submit a job (10 types)',
       'GET /api/jobs': 'List jobs',
       'GET /api/jobs/:id': 'Get job details',
@@ -715,24 +999,25 @@ const HOST = process.env.HOST || '0.0.0.0';
 app.listen(PORT, HOST, () => {
   const isDemoMode = process.env.DEMO_MODE === 'true';
   console.log(`
-╔══════════════════════════════════════════════════════╗
-║           🤖 LancerAI Agent Server v0.3.0           ║
-╠══════════════════════════════════════════════════════╣
-║                                                      ║
-║  Dashboard:     http://${HOST}:${PORT}                    ║
-║  Health:        http://${HOST}:${PORT}/health              ║
-║  API Status:    http://${HOST}:${PORT}/api/status         ║
-║  Services:      http://${HOST}:${PORT}/api/services       ║
-║  API Catalog:   http://${HOST}:${PORT}/api/wrapped-catalog║
-║  Deployments:   http://${HOST}:${PORT}/api/deployments    ║
-║                                                      ║
-║  DEMO MODE:     ${isDemoMode ? '🎭 ENABLED (mock data)          ' : '❌ Disabled                     '}║
-║  Services:      ${SERVICE_CATALOG.length} job types                        ║
-║  Wrapped APIs:  299 available via Locus              ║
-║                                                      ║
-║  Powered by Locus • USDC on Base                     ║
-║  BuildWithLocus: beta-api.buildwithlocus.com         ║
-╚══════════════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════╗
+║           🤖 LancerAI Agent Server v${APP_VERSION}              ║
+╠══════════════════════════════════════════════════════════╣
+║                                                          ║
+║  Dashboard:     http://${HOST}:${PORT}                        ║
+║  Health:        http://${HOST}:${PORT}/health                  ║
+║  Agent Info:    http://${HOST}:${PORT}/api/agent-info          ║
+║  llms.txt:      http://${HOST}:${PORT}/.well-known/llms.txt   ║
+║  Services:      http://${HOST}:${PORT}/api/services            ║
+║  API Catalog:   http://${HOST}:${PORT}/api/catalog             ║
+║  Deployments:   http://${HOST}:${PORT}/api/deployments         ║
+║                                                          ║
+║  DEMO MODE:     ${isDemoMode ? '🎭 ENABLED (mock data)          ' : '❌ Disabled                     '}    ║
+║  Services:      ${SERVICE_CATALOG.length} job types                            ║
+║  Wrapped APIs:  299 available via Locus                  ║
+║                                                          ║
+║  Powered by Locus • USDC on Base                         ║
+║  BuildWithLocus: beta-api.buildwithlocus.com             ║
+╚══════════════════════════════════════════════════════════╝
 `);
 });
 

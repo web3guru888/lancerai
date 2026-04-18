@@ -107,7 +107,7 @@ LancerAI is a **fully autonomous AI agent that operates as a self-sustaining fre
 
 ---
 
-## 🛒 Services
+## 🛒 Services (10)
 
 | Service | Price | What You Get | Powered By |
 |---------|-------|--------------|------------|
@@ -115,6 +115,9 @@ LancerAI is a **fully autonomous AI agent that operates as a self-sustaining fre
 | ✍️ **Content Creation** | 0.50 USDC | Articles, copy, summaries, creative writing | Gemini AI |
 | 📊 **Data Analysis** | 1.00 USDC | Statistical analysis, trend reports, insights | Brave + Gemini |
 | 🌐 **Translation** | 0.25 USDC | 30+ languages, professional quality | DeepL |
+| 🎨 **AI Image Generation** | 1.00 USDC | Photorealistic images, illustrations, art | fal.ai + Stability AI |
+| 💻 **Code Execution** | 0.25 USDC | Run code in 50+ languages, get output instantly | Judge0 |
+| 📈 **Crypto Market Analysis** | 0.75 USDC | Real-time price data, trends, sentiment analysis | CoinGecko + Gemini |
 | 🚀 **Website Deployment** | 2.00 USDC | Deploy any GitHub repo to production | BuildWithLocus |
 | 👤 **Hire a Human** | from 15 USDC | Design, video, tasks AI can't do — with escrow | Locus Fiverr |
 | 🤖 **Custom Task** | varies | Describe what you need — AI figures it out | Gemini AI |
@@ -130,7 +133,7 @@ LancerAI is a **fully autonomous AI agent that operates as a self-sustaining fre
 │   ┌────────────┐   ┌────────────┐   ┌────────────┐            │
 │   │ 📋 Job     │   │ 💰 Wallet  │   │ 🚀 Deploy  │            │
 │   │ Queue      │   │ Manager    │   │ Engine     │            │
-│   │ (7 types)  │   │ (USDC)     │   │ (BwL)      │            │
+│   │ (10 types) │   │ (USDC)     │   │ (BwL)      │            │
 │   └────────────┘   └────────────┘   └────────────┘            │
 │                                                                │
 │   ┌────────────┐   ┌────────────┐   ┌────────────┐            │
@@ -139,7 +142,7 @@ LancerAI is a **fully autonomous AI agent that operates as a self-sustaining fre
 │   └────────────┘   └────────────┘   └────────────┘            │
 │                                                                │
 │   ┌────────────────────────────────────────────────┐           │
-│   │ 📡 Express API Server (17+ endpoints)          │           │
+│   │ 📡 Express API Server (21+ endpoints)          │           │
 │   └────────────────────────────────────────────────┘           │
 │                                                                │
 │   ┌────────────────────────────────────────────────┐           │
@@ -223,7 +226,7 @@ curl -X POST http://localhost:8080/api/deploy \
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/status` | Agent status + wallet balance |
-| `GET` | `/api/services` | Service catalog (7 services) |
+| `GET` | `/api/services` | Service catalog (10 services) |
 | `GET` | `/api/audit` | Cost audit log |
 
 ### Jobs
@@ -268,7 +271,7 @@ curl -X POST http://localhost:8080/api/deploy \
 |-------|------------|
 | **Language** | TypeScript (ES2022, strict mode) |
 | **Runtime** | Node.js 22 |
-| **API** | Express with 17+ endpoints |
+| **API** | Express with 21+ endpoints |
 | **Payments** | Locus — USDC on Base (ERC-4337 smart wallets, gasless) |
 | **AI** | Gemini via Wrapped APIs |
 | **Search** | Brave Search via Wrapped APIs |
@@ -288,9 +291,9 @@ curl -X POST http://localhost:8080/api/deploy \
 lancerai/
 ├── src/
 │   ├── agent/
-│   │   └── agent.ts              # Job engine — 7 job types, auto-escalation
+│   │   └── agent.ts              # Job engine — 10 job types, auto-escalation
 │   ├── api/
-│   │   ├── server.ts             # Express server (17+ endpoints, port 8080)
+│   │   ├── server.ts             # Express server (21+ endpoints, port 8080)
 │   │   └── public/index.html     # Dashboard (Tailwind, glassmorphism, 1200+ lines)
 │   └── locus/                    # Locus SDK — 8 modules
 │       ├── client.ts             # HTTP client with auth, retries, error handling

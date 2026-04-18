@@ -313,7 +313,7 @@ export class WrappedApiService {
       });
     }
 
-    return this.call('gemini', 'chat', { model, prompt });
+    return this.call('gemini', 'chat', { model, messages: [{ role: 'user', content: prompt }] });
   }
 
   /** DeepSeek: Chat */
