@@ -50,3 +50,12 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
 CMD ["node", "dist/api/server.js"]
+
+# ===================================
+# Runtime environment defaults
+# (overrideable at runtime via BWL env vars)
+# ===================================
+ENV LOCUS_API_BASE=https://beta-api.paywithlocus.com/api
+ENV AGENT_NAME=LancerAI
+ENV DEMO_MODE=false
+ENV LOCUS_API_KEY=claw_dev_395P_qh9loXtGEgnNuYVzW8HrfGQj0FO
