@@ -1,0 +1,28 @@
+{
+  "name": "lancerai",
+  "version": "0.2.0",
+  "description": "LancerAI — Autonomous AI Agent Freelancer powered by Locus on Base",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/api/server.ts",
+    "start": "node dist/api/server.js",
+    "test": "tsx tests/run-all.ts",
+    "test:wallet": "tsx tests/test-wallet.ts",
+    "test:wrapped": "tsx tests/test-wrapped.ts",
+    "test:checkout": "tsx tests/test-checkout.ts",
+    "test:tasks": "tsx tests/test-tasks.ts",
+    "test:x402": "tsx tests/test-x402.ts"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "dotenv": "^16.4.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "tsx": "^4.19.0",
+    "@types/node": "^22.0.0",
+    "@types/express": "^4.17.0"
+  }
+}

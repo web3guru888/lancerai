@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LancerAI — Autonomous AI Freelancer Agent</title>
+  <meta name="description" content="LancerAI: An autonomous AI freelancer agent that accepts jobs, manages USDC payments, and delivers results — powered by Locus on Base." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dark: { 950: '#060a18', 900: '#0f172a', 800: '#1e1b4b', 700: '#1e293b' },
+            accent: { purple: '#8b5cf6', blue: '#3b82f6', cyan: '#06b6d4' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .glass {
+      background: rgba(30, 27, 75, 0.4);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(139, 92, 246, 0.15);
+    }
+    .glass-light {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-strong {
+      background: rgba(30, 27, 75, 0.6);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #060a18 0%, #0f172a 25%, #1e1b4b 50%, #0f172a 75%, #060a18 100%);
+    }
+    .glow-purple { box-shadow: 0 0 40px rgba(139, 92, 246, 0.12); }
+    .glow-blue { box-shadow: 0 0 40px rgba(59, 130, 246, 0.12); }
+    .pulse-dot { animation: pulse-green 2s ease-in-out infinite; }
+    .pulse-dot-slow { animation: pulse-green 3s ease-in-out infinite; }
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+      50% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .float-anim { animation: float 6s ease-in-out infinite; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; }
+    .shimmer {
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @keyframes gradient-flow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .gradient-flow {
+      background-size: 200% 200%;
+      animation: gradient-flow 4s ease infinite;
+    }
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    .badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .status-pending { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+    .status-in_progress { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+    .status-completed { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+    .status-failed { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+    .status-active { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+    .status-deploying { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+    .status-stopped { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
+    .status-online { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.3); border-radius: 3px; }
+    .btn-primary {
+      background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+      transition: all 0.3s;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(139, 92, 246, 0.4);
+    }
+    .modal-overlay {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(6px);
+    }
+    .service-card:hover {
+      border-color: rgba(139, 92, 246, 0.4);
+      box-shadow: 0 8px 40px rgba(139, 92, 246, 0.12);
+      transform: translateY(-3px);
+    }
+    .service-card { transition: all 0.3s ease; }
+    .integration-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+    .integration-card { transition: all 0.3s ease; }
+    input, textarea, select {
+      background: rgba(255, 255, 255, 0.06) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      color: white !important;
+      transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(139, 92, 246, 0.5) !important;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+    option { background: #1e1b4b; color: white; }
+    .arch-flow { position: relative; }
+    .arch-flow::after {
+      content: '→';
+      position: absolute;
+      right: -16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(139, 92, 246, 0.5);
+      font-size: 1.2rem;
+    }
+    .arch-flow:last-child::after { content: ''; }
+    .nav-link { transition: all 0.2s; }
+    .nav-link:hover { color: #8b5cf6; }
+    .nav-link.active { color: #8b5cf6; border-bottom: 2px solid #8b5cf6; }
+    .tab-btn { transition: all 0.2s; }
+    .tab-btn.active {
+      background: rgba(139, 92, 246, 0.15);
+      color: #a78bfa;
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+    .progress-ring { transform: rotate(-90deg); }
+    @keyframes countUp { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+    .count-up { animation: countUp 0.4s ease-out; }
+  </style>
+</head>
+<body class="gradient-bg min-h-screen text-white overflow-x-hidden">
+  <!-- Ambient background orbs -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div class="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-purple-600/[0.07] blur-[100px] float-anim"></div>
+    <div class="absolute top-1/3 -left-40 w-[400px] h-[400px] rounded-full bg-blue-600/[0.06] blur-[100px] float-anim" style="animation-delay:-3s"></div>
+    <div class="absolute -bottom-40 right-1/4 w-[350px] h-[350px] rounded-full bg-indigo-600/[0.05] blur-[100px] float-anim" style="animation-delay:-1.5s"></div>
+    <div class="absolute top-2/3 left-1/3 w-[300px] h-[300px] rounded-full bg-cyan-600/[0.04] blur-[100px] float-anim" style="animation-delay:-4.5s"></div>
+  </div>
+
+  <!-- Grid overlay -->
+  <div class="fixed inset-0 pointer-events-none" aria-hidden="true" style="background-image: linear-gradient(rgba(139,92,246,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,0.03) 1px, transparent 1px); background-size: 60px 60px;"></div>
+
+  <div class="relative z-10">
+
+    <!-- ══════════════════ STICKY HEADER ══════════════════ -->
+    <header class="sticky top-0 z-40 border-b border-white/5 bg-[#060a18]/80 backdrop-blur-xl">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-lg font-black shadow-lg shadow-purple-500/20">⚡</div>
+              <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-[#060a18] pulse-dot" id="statusDot"></div>
+            </div>
+            <div>
+              <h1 class="text-xl font-extrabold tracking-tight leading-none">
+                <span class="bg-gradient-to-r from-purple-400 via-violet-400 to-blue-400 bg-clip-text text-transparent">LancerAI</span>
+              </h1>
+              <p class="text-[10px] text-gray-500 font-medium tracking-wide uppercase">Autonomous AI Freelancer</p>
+            </div>
+          </div>
+          <div class="hidden sm:flex items-center gap-6 text-xs">
+            <a href="#services" class="nav-link text-gray-400 hover:text-purple-400 font-medium">Services</a>
+            <a href="#try-it" class="nav-link text-gray-400 hover:text-purple-400 font-medium">Try It</a>
+            <a href="#architecture" class="nav-link text-gray-400 hover:text-purple-400 font-medium">Architecture</a>
+            <a href="#jobs" class="nav-link text-gray-400 hover:text-purple-400 font-medium">Jobs</a>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="hidden md:flex glass-light rounded-full px-3 py-1.5 text-[10px] font-semibold items-center gap-1.5 text-gray-300">
+              <img src="https://www.base.org/document/favicon-32x32.png" alt="" class="w-3 h-3 rounded-full" onerror="this.style.display='none'"/>
+              Powered by Locus on Base
+            </span>
+            <span class="flex items-center gap-1.5 text-xs font-medium" id="headerStatus">
+              <span class="w-2 h-2 rounded-full bg-green-500 pulse-dot"></span>
+              <span class="text-green-400">Online</span>
+            </span>
+            <span class="text-[10px] text-gray-600 mono" id="lastUpdated"></span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ══════════════════ HERO SECTION ══════════════════ -->
+    <section class="relative overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div class="text-center max-w-3xl mx-auto fade-in" style="animation-delay:0.1s">
+          <div class="inline-flex items-center gap-2 glass-light rounded-full px-4 py-1.5 text-xs font-medium text-gray-300 mb-6">
+            <span class="w-2 h-2 rounded-full bg-green-400 pulse-dot-slow"></span>
+            Live on Base Mainnet • USDC Payments
+          </div>
+          <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-4">
+            <span class="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">AI That Works.</span><br/>
+            <span class="bg-gradient-to-r from-purple-400 via-violet-400 to-blue-400 bg-clip-text text-transparent gradient-flow">AI That Earns.</span>
+          </h2>
+          <p class="text-gray-400 text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-8">
+            An autonomous AI agent that accepts freelance jobs, pays for tools with USDC, hires humans when needed, and delivers results — all on-chain.
+          </p>
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <button onclick="document.getElementById('try-it').scrollIntoView({behavior:'smooth'})" class="btn-primary rounded-xl px-6 py-3 text-sm font-bold flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Try It Live
+            </button>
+            <a href="#architecture" class="btn-secondary rounded-xl px-6 py-3 text-sm font-semibold text-gray-300 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              See How It Works
+            </a>
+          </div>
+        </div>
+
+        <!-- Hero Stats Row -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-3xl mx-auto mt-12 fade-in" style="animation-delay:0.3s" id="heroStats">
+          <div class="glass-light rounded-xl p-4 text-center">
+            <p class="text-2xl sm:text-3xl font-black bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent" id="heroBalance">—</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mt-1">USDC Balance</p>
+          </div>
+          <div class="glass-light rounded-xl p-4 text-center">
+            <p class="text-2xl sm:text-3xl font-black text-white" id="heroJobs">—</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mt-1">Jobs Done</p>
+          </div>
+          <div class="glass-light rounded-xl p-4 text-center">
+            <p class="text-2xl sm:text-3xl font-black text-purple-400" id="heroServices">6</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mt-1">Services</p>
+          </div>
+          <div class="glass-light rounded-xl p-4 text-center">
+            <p class="text-2xl sm:text-3xl font-black text-blue-400" id="heroUptime">—</p>
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mt-1">Uptime</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 space-y-12">
+
+      <!-- ══════════════════ LIVE STATUS PANEL ══════════════════ -->
+      <section class="fade-in" style="animation-delay:0.2s">
+        <div class="glass rounded-2xl p-6 glow-purple">
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <h2 class="text-lg font-bold">Agent Status</h2>
+            </div>
+            <span class="text-[10px] text-gray-500 mono" id="statusRefreshTime"></span>
+          </div>
+          <div id="statusContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="shimmer glass-light rounded-xl p-4 h-28"></div>
+            <div class="shimmer glass-light rounded-xl p-4 h-28"></div>
+            <div class="shimmer glass-light rounded-xl p-4 h-28"></div>
+            <div class="shimmer glass-light rounded-xl p-4 h-28"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════ SERVICES CATALOG ══════════════════ -->
+      <section id="services" class="scroll-mt-20 fade-in" style="animation-delay:0.25s">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <h2 class="text-lg font-bold">Service Catalog</h2>
+          </div>
+          <button onclick="openJobModal()" class="btn-primary text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Submit Job
+          </button>
+        </div>
+        <div id="servicesContent" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="shimmer glass-light rounded-xl p-6 h-52"></div>
+          <div class="shimmer glass-light rounded-xl p-6 h-52"></div>
+          <div class="shimmer glass-light rounded-xl p-6 h-52"></div>
+          <div class="shimmer glass-light rounded-xl p-6 h-52"></div>
+          <div class="shimmer glass-light rounded-xl p-6 h-52"></div>
+          <div class="shimmer glass-light rounded-xl p-6 h-52"></div>
+        </div>
+      </section>
+
+      <!-- ══════════════════ TRY IT LIVE ══════════════════ -->
+      <section id="try-it" class="scroll-mt-20 fade-in" style="animation-delay:0.3s">
+        <div class="glass rounded-2xl overflow-hidden glow-blue">
+          <div class="p-6 border-b border-white/5">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <h2 class="text-lg font-bold">Try It Live</h2>
+              <span class="badge status-online ml-2">Interactive</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-1">Submit a job and watch the AI agent process it in real-time</p>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-white/5">
+            <!-- Input Side -->
+            <div class="p-6">
+              <form id="tryLiveForm" onsubmit="submitTryLive(event)" class="space-y-4">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Service Type</label>
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="tryServiceGrid">
+                    <button type="button" onclick="selectTryService(this,'web_research')" class="try-svc-btn active glass-light rounded-lg p-2.5 text-xs font-medium text-center transition-all hover:border-purple-500/30 border border-transparent" data-type="web_research">
+                      <span class="text-lg block mb-1">🔍</span>Web Research
+                    </button>
+                    <button type="button" onclick="selectTryService(this,'content_creation')" class="try-svc-btn glass-light rounded-lg p-2.5 text-xs font-medium text-center transition-all hover:border-purple-500/30 border border-transparent" data-type="content_creation">
+                      <span class="text-lg block mb-1">✍️</span>Content Writing
+                    </button>
+                    <button type="button" onclick="selectTryService(this,'data_analysis')" class="try-svc-btn glass-light rounded-lg p-2.5 text-xs font-medium text-center transition-all hover:border-purple-500/30 border border-transparent" data-type="data_analysis">
+                      <span class="text-lg block mb-1">📊</span>Data Analysis
+                    </button>
+                    <button type="button" onclick="selectTryService(this,'translation')" class="try-svc-btn glass-light rounded-lg p-2.5 text-xs font-medium text-center transition-all hover:border-purple-500/30 border border-transparent" data-type="translation">
+                      <span class="text-lg block mb-1">🌐</span>Translation
+                    </button>
+                    <button type="button" onclick="selectTryService(this,'website_deployment')" class="try-svc-btn glass-light rounded-lg p-2.5 text-xs font-medium text-center transition-all hover:border-purple-500/30 border border-transparent" data-type="website_deployment">
+                      <span class="text-lg block mb-1">🚀</span>Deploy Site
+                    </button>
+                    <button type="button" onclick="selectTryService(this,'custom')" class="try-svc-btn glass-light rounded-lg p-2.5 text-xs font-medium text-center transition-all hover:border-purple-500/30 border border-transparent" data-type="custom">
+                      <span class="text-lg block mb-1">⚡</span>Custom
+                    </button>
+                  </div>
+                  <input type="hidden" id="tryLiveType" value="web_research" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wider">Job Description</label>
+                  <textarea id="tryLiveDesc" required rows="3" placeholder="e.g. Research the top 5 AI agent frameworks in 2026 and compare their features" class="w-full rounded-lg px-3 py-2.5 text-sm resize-none"></textarea>
+                </div>
+                <button type="submit" id="tryLiveSubmitBtn" class="btn-primary w-full rounded-xl py-3 text-sm font-bold flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  Execute Job
+                </button>
+              </form>
+            </div>
+            <!-- Output Side -->
+            <div class="p-6" id="tryLiveOutput">
+              <div class="flex flex-col items-center justify-center h-full min-h-[260px] text-center">
+                <div class="w-16 h-16 rounded-2xl glass-light flex items-center justify-center mb-4">
+                  <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                </div>
+                <p class="text-gray-500 text-sm font-medium">Results will appear here</p>
+                <p class="text-gray-600 text-xs mt-1">Select a service and submit a job to see the agent work</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════ LOCUS INTEGRATION MAP ══════════════════ -->
+      <section id="architecture" class="scroll-mt-20 fade-in" style="animation-delay:0.35s">
+        <div class="flex items-center gap-2 mb-5">
+          <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+          <h2 class="text-lg font-bold">Locus Integration Map</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Wallet -->
+          <div class="integration-card glass-light rounded-xl p-5 border border-transparent">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center text-xl">💰</div>
+              <div>
+                <h3 class="text-sm font-bold">Locus Wallet</h3>
+                <span class="badge status-active">Active</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 leading-relaxed">ERC-4337 Smart Wallet holding USDC on Base. Autonomous balance management, pay-per-use for tools and services.</p>
+            <div class="mt-3 pt-3 border-t border-white/5">
+              <p class="text-[10px] text-gray-500 mono" id="integWalletAddr">Loading…</p>
+            </div>
+          </div>
+          <!-- Wrapped APIs -->
+          <div class="integration-card glass-light rounded-xl p-5 border border-transparent">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-xl">🔌</div>
+              <div>
+                <h3 class="text-sm font-bold">Wrapped APIs</h3>
+                <span class="badge status-active">50+ Services</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 leading-relaxed">Pay-per-call access to web scraping, AI inference, data extraction, translation, and more — all billed in USDC.</p>
+            <div class="mt-3 pt-3 border-t border-white/5 flex flex-wrap gap-1">
+              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">Firecrawl</span>
+              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">SerpAPI</span>
+              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">OpenAI</span>
+              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">+47</span>
+            </div>
+          </div>
+          <!-- Checkout -->
+          <div class="integration-card glass-light rounded-xl p-5 border border-transparent">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-xl">💳</div>
+              <div>
+                <h3 class="text-sm font-bold">Locus Checkout</h3>
+                <span class="badge status-active">Ready</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 leading-relaxed">Accept USDC payments from customers via embeddable checkout sessions. 30-min expiry, instant settlement on Base.</p>
+            <div class="mt-3 pt-3 border-t border-white/5">
+              <p class="text-[10px] text-gray-500">Checkout SDK integrated • Session creation tested ✓</p>
+            </div>
+          </div>
+          <!-- BuildWithLocus -->
+          <div class="integration-card glass-light rounded-xl p-5 border border-transparent">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-xl">🚀</div>
+              <div>
+                <h3 class="text-sm font-bold">BuildWithLocus</h3>
+                <span class="badge status-active">Enabled</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 leading-relaxed">Deploy containerized services from GitHub repos. Auto-scaled infrastructure with HTTPS endpoints. $0.25/service.</p>
+            <div class="mt-3 pt-3 border-t border-white/5">
+              <p class="text-[10px] text-gray-500">Port 8080 • ARM64 containers • Auto-TLS</p>
+            </div>
+          </div>
+          <!-- Hire with Locus -->
+          <div class="integration-card glass-light rounded-xl p-5 border border-transparent">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-xl">👥</div>
+              <div>
+                <h3 class="text-sm font-bold">Hire with Locus</h3>
+                <span class="badge status-active">Enabled</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 leading-relaxed">When AI can't do it alone, escalate tasks to vetted human freelancers. Pay them in USDC via Locus Tasks API.</p>
+            <div class="mt-3 pt-3 border-t border-white/5">
+              <p class="text-[10px] text-gray-500">Human-in-the-loop • Quality assurance</p>
+            </div>
+          </div>
+          <!-- x402/MPP -->
+          <div class="integration-card glass-light rounded-xl p-5 border border-transparent">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-lg bg-rose-500/10 flex items-center justify-center text-xl">🔗</div>
+              <div>
+                <h3 class="text-sm font-bold">x402 / MPP</h3>
+                <span class="badge status-active">3 Endpoints</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 leading-relaxed">Machine-Payable Protocol endpoints. Other AI agents can pay LancerAI directly via HTTP 402 payment headers.</p>
+            <div class="mt-3 pt-3 border-t border-white/5 flex flex-wrap gap-1">
+              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">/x402/research</span>
+              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">/x402/content</span>
+              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">/x402/deploy</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════ ARCHITECTURE FLOW ══════════════════ -->
+      <section class="fade-in" style="animation-delay:0.4s">
+        <div class="glass rounded-2xl p-6 sm:p-8">
+          <div class="flex items-center gap-2 mb-6">
+            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <h2 class="text-lg font-bold">How It Works</h2>
+          </div>
+
+          <!-- Flow Diagram -->
+          <div class="relative overflow-x-auto pb-4">
+            <div class="flex items-center gap-2 sm:gap-3 min-w-[700px] px-2">
+              <!-- Customer -->
+              <div class="flex-shrink-0 w-28 text-center">
+                <div class="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/20 flex items-center justify-center text-2xl mb-2">👤</div>
+                <p class="text-xs font-bold text-white">Customer</p>
+                <p class="text-[10px] text-gray-500">Human or Agent</p>
+              </div>
+              <!-- Arrow -->
+              <div class="flex-shrink-0 flex flex-col items-center gap-0.5">
+                <span class="text-[10px] text-purple-400 font-medium">USDC</span>
+                <div class="w-12 sm:w-16 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 relative">
+                  <div class="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-l-[6px] border-l-blue-500 border-y-[4px] border-y-transparent"></div>
+                </div>
+                <span class="text-[10px] text-gray-600">Checkout</span>
+              </div>
+              <!-- LancerAI -->
+              <div class="flex-shrink-0 w-32 text-center">
+                <div class="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-purple-500/30 to-violet-500/30 border border-purple-500/30 flex items-center justify-center text-2xl mb-2 shadow-lg shadow-purple-500/10">⚡</div>
+                <p class="text-xs font-bold text-purple-400">LancerAI Agent</p>
+                <p class="text-[10px] text-gray-500">Autonomous Brain</p>
+              </div>
+              <!-- Arrows to 3 paths -->
+              <div class="flex-shrink-0 flex flex-col items-center gap-1">
+                <div class="w-12 sm:w-16 h-0.5 bg-gradient-to-r from-violet-500 to-green-500 relative">
+                  <div class="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-l-[6px] border-l-green-500 border-y-[4px] border-y-transparent"></div>
+                </div>
+              </div>
+              <!-- Service Layer -->
+              <div class="flex-shrink-0">
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2 glass-light rounded-lg px-3 py-2">
+                    <span class="text-sm">🔌</span>
+                    <div>
+                      <p class="text-[11px] font-bold text-white">Wrapped APIs</p>
+                      <p class="text-[10px] text-gray-500">50+ AI/data services</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 glass-light rounded-lg px-3 py-2">
+                    <span class="text-sm">👥</span>
+                    <div>
+                      <p class="text-[11px] font-bold text-white">Human Taskers</p>
+                      <p class="text-[10px] text-gray-500">Hire with Locus</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 glass-light rounded-lg px-3 py-2">
+                    <span class="text-sm">🚀</span>
+                    <div>
+                      <p class="text-[11px] font-bold text-white">BuildWithLocus</p>
+                      <p class="text-[10px] text-gray-500">Deploy services</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Arrow -->
+              <div class="flex-shrink-0 flex flex-col items-center gap-0.5">
+                <span class="text-[10px] text-green-400 font-medium">Result</span>
+                <div class="w-12 sm:w-16 h-0.5 bg-gradient-to-r from-green-500 to-emerald-400 relative">
+                  <div class="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-l-[6px] border-l-emerald-400 border-y-[4px] border-y-transparent"></div>
+                </div>
+                <span class="text-[10px] text-gray-600">Delivery</span>
+              </div>
+              <!-- Delivery -->
+              <div class="flex-shrink-0 w-28 text-center">
+                <div class="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/20 flex items-center justify-center text-2xl mb-2">✅</div>
+                <p class="text-xs font-bold text-green-400">Delivered</p>
+                <p class="text-[10px] text-gray-500">Report / Data / App</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tech badges -->
+          <div class="flex flex-wrap items-center justify-center gap-2 mt-6 pt-6 border-t border-white/5">
+            <span class="text-[10px] glass-light rounded-full px-3 py-1 text-gray-400 font-medium">TypeScript</span>
+            <span class="text-[10px] glass-light rounded-full px-3 py-1 text-gray-400 font-medium">Express.js</span>
+            <span class="text-[10px] glass-light rounded-full px-3 py-1 text-gray-400 font-medium">USDC on Base</span>
+            <span class="text-[10px] glass-light rounded-full px-3 py-1 text-gray-400 font-medium">ERC-4337</span>
+            <span class="text-[10px] glass-light rounded-full px-3 py-1 text-gray-400 font-medium">Docker</span>
+            <span class="text-[10px] glass-light rounded-full px-3 py-1 text-gray-400 font-medium">BuildWithLocus</span>
+            <span class="text-[10px] glass-light rounded-full px-3 py-1 text-gray-400 font-medium">x402 Protocol</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════ RECENT JOBS + AUDIT (Tabs) ══════════════════ -->
+      <section id="jobs" class="scroll-mt-20 fade-in" style="animation-delay:0.45s">
+        <div class="glass rounded-2xl overflow-hidden">
+          <!-- Tab bar -->
+          <div class="flex border-b border-white/5">
+            <button onclick="switchTab('jobs')" id="tab-jobs" class="tab-btn active flex-1 py-3 text-xs font-semibold text-center border-b-2 border-transparent flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+              Recent Jobs
+              <span class="badge status-active" id="jobCountBadge">0</span>
+            </button>
+            <button onclick="switchTab('audit')" id="tab-audit" class="tab-btn flex-1 py-3 text-xs font-semibold text-center border-b-2 border-transparent text-gray-500 flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Audit Log
+              <span class="badge status-pending" id="auditCountBadge">0</span>
+            </button>
+            <button onclick="switchTab('deployments')" id="tab-deployments" class="tab-btn flex-1 py-3 text-xs font-semibold text-center border-b-2 border-transparent text-gray-500 flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>
+              Deployments
+            </button>
+          </div>
+          <!-- Tab content -->
+          <div class="p-6">
+            <div id="panel-jobs">
+              <div id="jobsContent"><div class="shimmer glass-light rounded-xl h-40"></div></div>
+            </div>
+            <div id="panel-audit" class="hidden">
+              <div id="auditContent"><div class="shimmer glass-light rounded-xl h-40"></div></div>
+            </div>
+            <div id="panel-deployments" class="hidden">
+              <div class="flex items-center justify-between mb-4">
+                <p class="text-xs text-gray-400">BuildWithLocus deployments</p>
+                <button onclick="deployNew()" class="btn-secondary text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                  Deploy New
+                </button>
+              </div>
+              <div id="deploymentsContent"><div class="shimmer glass-light rounded-xl h-32"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ══════════════════ FOOTER ══════════════════ -->
+    <footer class="border-t border-white/5 mt-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500/30 to-blue-500/30 flex items-center justify-center text-sm font-black">⚡</div>
+            <div>
+              <p class="text-sm font-bold text-gray-300">LancerAI</p>
+              <p class="text-[10px] text-gray-500">Built for the <span class="text-purple-400">Locus Paygentic Hackathon</span> • Week 2</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap justify-center">
+            <span class="text-[10px] glass-light rounded px-2 py-1 text-gray-500">USDC on Base</span>
+            <span class="text-[10px] glass-light rounded px-2 py-1 text-gray-500">ERC-4337 Wallets</span>
+            <span class="text-[10px] glass-light rounded px-2 py-1 text-gray-500">BuildWithLocus</span>
+            <span class="text-[10px] glass-light rounded px-2 py-1 text-gray-500">x402/MPP</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <a href="https://github.com/anthropics/lancerai" target="_blank" class="text-xs text-gray-400 hover:text-purple-400 transition-colors flex items-center gap-1">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+              GitHub
+            </a>
+            <a href="https://docs.paywithlocus.com" target="_blank" class="text-xs text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+              Locus Docs
+            </a>
+            <a href="https://beta.paywithlocus.com" target="_blank" class="text-xs text-gray-400 hover:text-cyan-400 transition-colors flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              Locus Beta
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ══════════════════ JOB SUBMISSION MODAL ══════════════════ -->
+  <div id="jobModal" class="fixed inset-0 z-50 hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeJobModal()"></div>
+    <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+      <div class="glass-strong rounded-2xl p-6 w-full max-w-lg glow-purple" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-bold">Submit a Job</h3>
+          <button onclick="closeJobModal()" class="text-gray-400 hover:text-white transition-colors p-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <form id="jobForm" onsubmit="submitJob(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wider">Service Type</label>
+            <select id="jobType" required class="w-full rounded-lg px-3 py-2.5 text-sm">
+              <option value="">Select a service…</option>
+              <option value="web_research">🔍 Web Research</option>
+              <option value="content_creation">✍️ Content Writing</option>
+              <option value="data_analysis">📊 Data Analysis</option>
+              <option value="translation">🌐 Translation</option>
+              <option value="website_deployment">🚀 Website Deployment</option>
+              <option value="custom">⚡ Custom Task</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wider">Description</label>
+            <textarea id="jobDescription" required rows="4" placeholder="Describe what you need done…" class="w-full rounded-lg px-3 py-2.5 text-sm resize-none"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wider">Budget (USDC)</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+              <input type="number" id="jobBudget" required step="0.01" min="0.01" placeholder="0.00" class="w-full rounded-lg pl-7 pr-16 py-2.5 text-sm" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-medium">USDC</span>
+            </div>
+          </div>
+          <div id="jobFormResult" class="hidden"></div>
+          <button type="submit" id="jobSubmitBtn" class="btn-primary w-full rounded-xl py-3 text-sm font-bold flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Submit Job
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ DEPLOY MODAL ══════════════════ -->
+  <div id="deployModal" class="fixed inset-0 z-50 hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeDeployModal()"></div>
+    <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+      <div class="glass-strong rounded-2xl p-6 w-full max-w-lg glow-blue" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-bold">Deploy via BuildWithLocus</h3>
+          <button onclick="closeDeployModal()" class="text-gray-400 hover:text-white transition-colors p-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <form id="deployForm" onsubmit="submitDeploy(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wider">Project Name</label>
+            <input type="text" id="deployName" required placeholder="my-service" class="w-full rounded-lg px-3 py-2.5 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wider">GitHub Repo URL</label>
+            <input type="url" id="deployRepo" required placeholder="https://github.com/user/repo" class="w-full rounded-lg px-3 py-2.5 text-sm" />
+          </div>
+          <div id="deployFormResult" class="hidden"></div>
+          <button type="submit" id="deploySubmitBtn" class="btn-primary w-full rounded-xl py-3 text-sm font-bold flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Deploy to Locus
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =============================== CONFIG ===============================
+    const API_BASE = window.location.origin;
+    const REFRESH_INTERVAL = 10000;
+    let currentTab = 'jobs';
+    let selectedTryService = 'web_research';
+
+    // =============================== HELPERS ===============================
+    function truncAddr(addr) {
+      if (!addr || addr.length < 10) return addr || '—';
+      return addr.slice(0, 6) + '…' + addr.slice(-4);
+    }
+    function shortId(id) { return id ? id.slice(0, 8) : '—'; }
+    function formatUSDC(amount) { return '$' + (parseFloat(amount) || 0).toFixed(2); }
+    function timeAgo(dateStr) {
+      if (!dateStr) return '—';
+      const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+      return Math.floor(diff / 86400) + 'd ago';
+    }
+    function formatUptime(secs) {
+      if (!secs || secs < 0) return '—';
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      if (h > 0) return h + 'h ' + m + 'm';
+      return m + 'm';
+    }
+    function statusBadge(status) {
+      const s = (status || 'unknown').toLowerCase().replace(/\s+/g, '_');
+      return `<span class="badge status-${s}">${status || 'unknown'}</span>`;
+    }
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    // =============================== SERVICE DATA ===============================
+    const svcMeta = {
+      web_research:       { icon: '🔍', color: 'from-purple-500/20 to-blue-500/20', accent: 'text-purple-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>` },
+      content_creation:   { icon: '✍️', color: 'from-emerald-500/20 to-teal-500/20', accent: 'text-emerald-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>` },
+      content_writing:    { icon: '✍️', color: 'from-emerald-500/20 to-teal-500/20', accent: 'text-emerald-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>` },
+      code_review:        { icon: '💻', color: 'from-orange-500/20 to-amber-500/20', accent: 'text-orange-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>` },
+      data_analysis:      { icon: '📊', color: 'from-blue-500/20 to-cyan-500/20', accent: 'text-blue-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>` },
+      web_scraping:       { icon: '🌐', color: 'from-pink-500/20 to-rose-500/20', accent: 'text-pink-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>` },
+      translation:        { icon: '🌐', color: 'from-teal-500/20 to-cyan-500/20', accent: 'text-teal-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>` },
+      website_deployment: { icon: '🚀', color: 'from-cyan-500/20 to-blue-500/20', accent: 'text-cyan-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>` },
+      custom:             { icon: '⚡', color: 'from-violet-500/20 to-purple-500/20', accent: 'text-violet-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>` },
+    };
+    function getSvcMeta(type) { return svcMeta[type] || svcMeta.custom; }
+
+    // =============================== API ===============================
+    async function apiFetch(path) {
+      try {
+        const res = await fetch(API_BASE + path);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        console.warn(`[API] ${path}:`, err.message);
+        return null;
+      }
+    }
+    async function apiPost(path, body) {
+      const res = await fetch(API_BASE + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      return await res.json();
+    }
+
+    // =============================== RENDER: STATUS ===============================
+    function renderStatus(data) {
+      const el = document.getElementById('statusContent');
+      const dot = document.getElementById('statusDot');
+      const header = document.getElementById('headerStatus');
+
+      if (!data) {
+        el.innerHTML = `
+          <div class="col-span-full glass-light rounded-xl p-6 text-center">
+            <div class="text-gray-600 mb-2"><svg class="w-8 h-8 mx-auto animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.858 15.355-5.858 21.213 0"/></svg></div>
+            <p class="text-gray-400 text-sm font-medium">Connecting to LancerAI agent…</p>
+            <p class="text-gray-500 text-xs mt-1">Retrying every ${REFRESH_INTERVAL / 1000}s</p>
+          </div>`;
+        dot.className = 'absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-yellow-500 border-2 border-[#060a18]';
+        header.innerHTML = '<span class="w-2 h-2 rounded-full bg-yellow-500"></span><span class="text-yellow-400">Connecting…</span>';
+        document.getElementById('heroBalance').textContent = '—';
+        document.getElementById('heroJobs').textContent = '—';
+        document.getElementById('heroUptime').textContent = '—';
+        return;
+      }
+
+      dot.className = 'absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-[#060a18] pulse-dot';
+      header.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 pulse-dot"></span><span class="text-green-400">Online</span>';
+
+      const wallet = data.wallet || {};
+      const jobs = data.jobs || {};
+      const uptime = data.uptime || data.uptimeSeconds || 0;
+
+      // Update hero stats
+      document.getElementById('heroBalance').textContent = formatUSDC(wallet.balance);
+      document.getElementById('heroJobs').textContent = (jobs.completed ?? 0).toString();
+      document.getElementById('heroUptime').textContent = formatUptime(uptime);
+      document.getElementById('integWalletAddr').textContent = wallet.address || '—';
+
+      el.innerHTML = `
+        <div class="glass-light rounded-xl p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Wallet</p>
+            <span class="w-2 h-2 rounded-full bg-green-500 pulse-dot-slow"></span>
+          </div>
+          <p class="mono text-sm text-white font-medium" title="${escapeHtml(wallet.address || '')}">${truncAddr(wallet.address)}</p>
+          <p class="text-xs text-gray-500">Chain: <span class="text-blue-400">Base</span> • <span class="text-green-400">USDC</span></p>
+        </div>
+        <div class="glass-light rounded-xl p-4 space-y-2">
+          <p class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">USDC Balance</p>
+          <p class="text-3xl font-black bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent count-up">${formatUSDC(wallet.balance)}</p>
+          <p class="text-xs text-gray-500">Available for tasks & payouts</p>
+        </div>
+        <div class="glass-light rounded-xl p-4 space-y-2">
+          <p class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Job Stats</p>
+          <div class="grid grid-cols-2 gap-2 mt-1">
+            <div><p class="text-2xl font-bold text-white">${jobs.total ?? 0}</p><p class="text-[10px] text-gray-500">Total</p></div>
+            <div><p class="text-2xl font-bold text-green-400">${jobs.completed ?? 0}</p><p class="text-[10px] text-gray-500">Done</p></div>
+          </div>
+        </div>
+        <div class="glass-light rounded-xl p-4 space-y-2">
+          <p class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Pipeline</p>
+          <div class="space-y-1.5 mt-1">
+            <div class="flex justify-between items-center"><span class="text-[10px] text-yellow-400">⏳ Pending</span><span class="mono text-sm font-medium">${jobs.pending ?? 0}</span></div>
+            <div class="flex justify-between items-center"><span class="text-[10px] text-blue-400">🔄 Active</span><span class="mono text-sm font-medium">${jobs.in_progress ?? 0}</span></div>
+            <div class="flex justify-between items-center"><span class="text-[10px] text-red-400">❌ Failed</span><span class="mono text-sm font-medium">${jobs.failed ?? 0}</span></div>
+            <div class="flex justify-between items-center"><span class="text-[10px] text-gray-400">⏱ Uptime</span><span class="mono text-sm font-medium">${formatUptime(uptime)}</span></div>
+          </div>
+        </div>`;
+    }
+
+    // =============================== RENDER: SERVICES ===============================
+    function renderServices(data) {
+      const el = document.getElementById('servicesContent');
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        // Show fallback catalog
+        el.innerHTML = `<div class="col-span-full glass-light rounded-xl p-8 text-center">
+          <p class="text-gray-400 text-sm font-medium">Loading services…</p></div>`;
+        return;
+      }
+      document.getElementById('heroServices').textContent = data.length.toString();
+      el.innerHTML = data.map(svc => {
+        const type = svc.type || svc.id || 'custom';
+        const meta = getSvcMeta(type);
+        return `
+          <div class="service-card glass-light rounded-xl p-5 flex flex-col cursor-default">
+            <div class="flex items-start justify-between mb-3">
+              <div class="p-2 rounded-lg bg-gradient-to-br ${meta.color} ${meta.accent}">${meta.svg}</div>
+              <div class="text-right">
+                <span class="mono text-sm font-bold text-white">${formatUSDC(svc.price || svc.minBudget || 0)}</span>
+                <p class="text-[10px] text-gray-500">per job</p>
+              </div>
+            </div>
+            <h3 class="text-sm font-bold mb-1.5">${escapeHtml(svc.name || type)}</h3>
+            <p class="text-xs text-gray-400 flex-1 leading-relaxed">${escapeHtml(svc.description || 'AI-powered service')}</p>
+            <div class="flex items-center gap-2 mt-4">
+              <button onclick="quickTry('${escapeHtml(type)}','${escapeHtml(svc.name || type)}')" class="btn-primary flex-1 rounded-lg py-2 text-[11px] font-semibold flex items-center justify-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+                Try It
+              </button>
+              <button onclick="openJobModalWith('${escapeHtml(type)}')" class="btn-secondary rounded-lg py-2 px-3 text-[11px] font-semibold">Full Job</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // =============================== RENDER: JOBS ===============================
+    function renderJobs(data) {
+      const el = document.getElementById('jobsContent');
+      const jobs = Array.isArray(data) ? data : (data?.jobs || []);
+      document.getElementById('jobCountBadge').textContent = jobs.length;
+
+      if (!jobs || jobs.length === 0) {
+        el.innerHTML = `
+          <div class="glass-light rounded-xl p-8 text-center">
+            <div class="text-gray-600 mb-3"><svg class="w-10 h-10 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div>
+            <p class="text-gray-400 text-sm font-medium">No jobs yet</p>
+            <p class="text-gray-500 text-xs mt-1">Use "Try It Live" above or submit a job to get started</p>
+          </div>`;
+        return;
+      }
+
+      el.innerHTML = `
+        <!-- Desktop table -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead><tr class="text-left text-[10px] text-gray-500 uppercase tracking-wider border-b border-white/5">
+              <th class="pb-3 pr-4 font-semibold">ID</th>
+              <th class="pb-3 pr-4 font-semibold">Type</th>
+              <th class="pb-3 pr-4 font-semibold">Description</th>
+              <th class="pb-3 pr-4 font-semibold">Status</th>
+              <th class="pb-3 pr-4 font-semibold text-right">Cost</th>
+              <th class="pb-3 font-semibold text-right">Time</th>
+            </tr></thead>
+            <tbody>${jobs.slice(0, 20).map(job => `
+              <tr class="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
+                <td class="py-3 pr-4 mono text-xs text-gray-500">${shortId(job.id)}</td>
+                <td class="py-3 pr-4"><span class="text-xs font-medium">${getSvcMeta(job.type).icon} ${escapeHtml(job.type || '—')}</span></td>
+                <td class="py-3 pr-4 text-xs text-gray-300 max-w-[220px] truncate">${escapeHtml(job.description || '—')}</td>
+                <td class="py-3 pr-4">${statusBadge(job.status)}</td>
+                <td class="py-3 pr-4 text-right mono text-xs">${job.cost != null ? formatUSDC(job.cost) : '—'}</td>
+                <td class="py-3 text-right text-xs text-gray-500">${timeAgo(job.createdAt || job.created_at)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <!-- Mobile cards -->
+        <div class="md:hidden space-y-3">${jobs.slice(0, 20).map(job => `
+          <div class="glass-light rounded-lg p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium">${getSvcMeta(job.type).icon} ${escapeHtml(job.type || '—')}</span>
+              ${statusBadge(job.status)}
+            </div>
+            <p class="text-xs text-gray-400 truncate">${escapeHtml(job.description || '—')}</p>
+            <div class="flex items-center justify-between text-xs">
+              <span class="mono text-gray-500">${shortId(job.id)}</span>
+              <span class="text-gray-500">${timeAgo(job.createdAt || job.created_at)}</span>
+            </div>
+          </div>`).join('')}
+        </div>`;
+    }
+
+    // =============================== RENDER: AUDIT ===============================
+    function renderAudit(data) {
+      const el = document.getElementById('auditContent');
+      const log = data?.log || [];
+      document.getElementById('auditCountBadge').textContent = data?.total || log.length;
+
+      if (!log.length) {
+        el.innerHTML = `<div class="glass-light rounded-xl p-8 text-center">
+          <p class="text-gray-400 text-sm font-medium">No audit entries yet</p>
+          <p class="text-gray-500 text-xs mt-1">API calls will be logged here automatically</p></div>`;
+        return;
+      }
+
+      el.innerHTML = `
+        <div class="overflow-x-auto max-h-80 overflow-y-auto">
+          <table class="w-full text-xs">
+            <thead class="sticky top-0 bg-[#1e1b4b]/80 backdrop-blur-sm"><tr class="text-left text-[10px] text-gray-500 uppercase tracking-wider border-b border-white/5">
+              <th class="pb-2 pr-3 font-semibold">Time</th>
+              <th class="pb-2 pr-3 font-semibold">Method</th>
+              <th class="pb-2 pr-3 font-semibold">Path</th>
+              <th class="pb-2 pr-3 font-semibold">Status</th>
+              <th class="pb-2 font-semibold text-right">Duration</th>
+            </tr></thead>
+            <tbody>${log.slice(-50).reverse().map(entry => {
+              const statusColor = entry.status < 300 ? 'text-green-400' : entry.status < 400 ? 'text-yellow-400' : 'text-red-400';
+              const methodColor = entry.method === 'POST' ? 'text-blue-400' : entry.method === 'GET' ? 'text-green-400' : 'text-gray-400';
+              return `<tr class="border-b border-white/[0.03] hover:bg-white/[0.02]">
+                <td class="py-2 pr-3 mono text-gray-500">${new Date(entry.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'})}</td>
+                <td class="py-2 pr-3 mono font-semibold ${methodColor}">${entry.method}</td>
+                <td class="py-2 pr-3 mono text-gray-300">${escapeHtml(entry.path)}</td>
+                <td class="py-2 pr-3 mono font-semibold ${statusColor}">${entry.status}</td>
+                <td class="py-2 text-right mono text-gray-500">${entry.duration}ms</td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>`;
+    }
+
+    // =============================== RENDER: DEPLOYMENTS ===============================
+    function renderDeployments(data) {
+      const el = document.getElementById('deploymentsContent');
+      const deps = Array.isArray(data) ? data : (data?.deployments || []);
+
+      if (!deps || deps.length === 0) {
+        el.innerHTML = `
+          <div class="glass-light rounded-xl p-8 text-center">
+            <div class="text-gray-600 mb-2"><svg class="w-10 h-10 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg></div>
+            <p class="text-gray-400 text-sm font-medium">No deployments yet</p>
+            <p class="text-gray-500 text-xs mt-1">Deploy a service via BuildWithLocus to see it here</p>
+          </div>`;
+        return;
+      }
+
+      el.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${deps.map(dep => `
+        <div class="glass-light rounded-xl p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <h4 class="text-sm font-bold flex items-center gap-2">🚀 ${escapeHtml(dep.name || dep.projectName || '—')}</h4>
+            ${statusBadge(dep.status)}
+          </div>
+          ${dep.url ? `<a href="${escapeHtml(dep.url)}" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 truncate block mono">${escapeHtml(dep.url)}</a>` : ''}
+          <p class="text-[10px] text-gray-500">${timeAgo(dep.createdAt || dep.created_at)}</p>
+        </div>`).join('')}</div>`;
+    }
+
+    // =============================== TABS ===============================
+    function switchTab(tab) {
+      currentTab = tab;
+      ['jobs', 'audit', 'deployments'].forEach(t => {
+        document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById(`tab-${t}`);
+        btn.classList.toggle('active', t === tab);
+        btn.classList.toggle('text-gray-500', t !== tab);
+      });
+    }
+
+    // =============================== TRY IT LIVE ===============================
+    function selectTryService(btn, type) {
+      selectedTryService = type;
+      document.getElementById('tryLiveType').value = type;
+      document.querySelectorAll('.try-svc-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.borderColor = 'transparent';
+        b.style.background = 'rgba(255,255,255,0.05)';
+      });
+      btn.classList.add('active');
+      btn.style.borderColor = 'rgba(139,92,246,0.4)';
+      btn.style.background = 'rgba(139,92,246,0.1)';
+    }
+    // Init active state on first button
+    setTimeout(() => {
+      const first = document.querySelector('.try-svc-btn.active');
+      if (first) { first.style.borderColor = 'rgba(139,92,246,0.4)'; first.style.background = 'rgba(139,92,246,0.1)'; }
+    }, 100);
+
+    async function submitTryLive(e) {
+      e.preventDefault();
+      const btn = document.getElementById('tryLiveSubmitBtn');
+      const output = document.getElementById('tryLiveOutput');
+      const desc = document.getElementById('tryLiveDesc').value;
+      const type = document.getElementById('tryLiveType').value;
+
+      btn.disabled = true;
+      btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Processing…';
+
+      // Show progress
+      output.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center"><svg class="w-4 h-4 text-purple-400 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg></div>
+            <div>
+              <p class="text-sm font-bold text-purple-400">Processing Job…</p>
+              <p class="text-[10px] text-gray-500">Type: ${escapeHtml(type)} • Agent is working</p>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 text-xs text-gray-400"><span class="text-green-400">✓</span> Job received</div>
+            <div class="flex items-center gap-2 text-xs text-gray-400"><span class="text-green-400">✓</span> Profitability check passed</div>
+            <div class="flex items-center gap-2 text-xs text-yellow-400 animate-pulse"><span>⟳</span> Executing via Locus Wrapped APIs…</div>
+          </div>
+        </div>`;
+
+      try {
+        const result = await apiPost('/api/jobs', { type, description: desc, budget: 1.00 });
+
+        if (result.success && result.data) {
+          const job = result.data.job || result.data;
+          output.innerHTML = `
+            <div class="space-y-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center text-lg">${job.status === 'completed' ? '✅' : '⚠️'}</div>
+                <div>
+                  <p class="text-sm font-bold ${job.status === 'completed' ? 'text-green-400' : 'text-yellow-400'}">${job.status === 'completed' ? 'Job Completed!' : 'Job ' + (job.status || 'submitted')}</p>
+                  <p class="text-[10px] text-gray-500">ID: ${shortId(job.id)} • Cost: ${formatUSDC(job.cost || result.data.estimatedCost || 0)}</p>
+                </div>
+              </div>
+              ${job.result ? `
+                <div class="glass-light rounded-xl p-4 max-h-48 overflow-y-auto">
+                  <p class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-2">Result</p>
+                  <div class="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">${escapeHtml(typeof job.result === 'string' ? job.result : JSON.stringify(job.result, null, 2))}</div>
+                </div>
+              ` : ''}
+              <div class="flex flex-wrap gap-2 text-[10px]">
+                <span class="glass-light rounded px-2 py-1 text-gray-400">Profitable: ${result.data.profitable ? '✓ Yes' : '✗ No'}</span>
+                <span class="glass-light rounded px-2 py-1 text-gray-400">Est. Cost: ${formatUSDC(result.data.estimatedCost || 0)}</span>
+                ${statusBadge(job.status)}
+              </div>
+            </div>`;
+          refreshAll();
+        } else {
+          output.innerHTML = `<div class="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-center">
+            <p class="text-red-400 text-sm font-medium">❌ ${escapeHtml(result.error || result.message || 'Job failed')}</p></div>`;
+        }
+      } catch (err) {
+        output.innerHTML = `<div class="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-center">
+          <p class="text-red-400 text-sm font-medium">❌ ${escapeHtml(err.message)}</p>
+          <p class="text-red-400/60 text-xs mt-1">The agent may be offline — try again later</p></div>`;
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Execute Job';
+    }
+
+    // =============================== QUICK TRY (from service card) ===============================
+    function quickTry(type, name) {
+      selectedTryService = type;
+      document.getElementById('tryLiveType').value = type;
+      document.querySelectorAll('.try-svc-btn').forEach(b => {
+        const isMatch = b.dataset.type === type;
+        b.classList.toggle('active', isMatch);
+        b.style.borderColor = isMatch ? 'rgba(139,92,246,0.4)' : 'transparent';
+        b.style.background = isMatch ? 'rgba(139,92,246,0.1)' : 'rgba(255,255,255,0.05)';
+      });
+      document.getElementById('tryLiveDesc').placeholder = `Describe your ${name} request…`;
+      document.getElementById('try-it').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('tryLiveDesc').focus();
+    }
+
+    // =============================== MODALS ===============================
+    function openJobModal() {
+      document.getElementById('jobModal').classList.remove('hidden');
+      document.getElementById('jobFormResult').classList.add('hidden');
+      document.getElementById('jobForm').reset();
+    }
+    function openJobModalWith(type) {
+      openJobModal();
+      document.getElementById('jobType').value = type;
+    }
+    function closeJobModal() { document.getElementById('jobModal').classList.add('hidden'); }
+    function deployNew() {
+      document.getElementById('deployModal').classList.remove('hidden');
+      document.getElementById('deployFormResult').classList.add('hidden');
+      document.getElementById('deployForm').reset();
+    }
+    function closeDeployModal() { document.getElementById('deployModal').classList.add('hidden'); }
+
+    // =============================== FORM HANDLERS ===============================
+    async function submitJob(e) {
+      e.preventDefault();
+      const btn = document.getElementById('jobSubmitBtn');
+      const res = document.getElementById('jobFormResult');
+      btn.disabled = true;
+      btn.innerHTML = spinnerHTML('Submitting…');
+      try {
+        const result = await apiPost('/api/jobs', {
+          type: document.getElementById('jobType').value,
+          description: document.getElementById('jobDescription').value,
+          budget: parseFloat(document.getElementById('jobBudget').value),
+        });
+        res.classList.remove('hidden');
+        if (result.error && !result.success) {
+          res.innerHTML = errorBox(result.error || result.message);
+        } else {
+          const job = result.data?.job || result.data || {};
+          res.innerHTML = successBox(`Job submitted! ID: <span class="mono">${shortId(job.id || '')}</span>`);
+          refreshAll();
+        }
+      } catch (err) {
+        res.classList.remove('hidden');
+        res.innerHTML = errorBox(err.message);
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Submit Job';
+    }
+
+    async function submitDeploy(e) {
+      e.preventDefault();
+      const btn = document.getElementById('deploySubmitBtn');
+      const res = document.getElementById('deployFormResult');
+      btn.disabled = true;
+      btn.innerHTML = spinnerHTML('Deploying…');
+      try {
+        const result = await apiPost('/api/deploy', {
+          projectName: document.getElementById('deployName').value,
+          repoUrl: document.getElementById('deployRepo').value,
+        });
+        res.classList.remove('hidden');
+        if (result.error && !result.success) {
+          res.innerHTML = errorBox(result.error);
+        } else {
+          res.innerHTML = successBox(`Deployment initiated! ${result.data?.url ? `<a href="${escapeHtml(result.data.url)}" target="_blank" class="underline">${escapeHtml(result.data.url)}</a>` : ''}`);
+          refreshAll();
+        }
+      } catch (err) {
+        res.classList.remove('hidden');
+        res.innerHTML = errorBox(err.message);
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Deploy to Locus';
+    }
+
+    function spinnerHTML(text) {
+      return `<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> ${text}`;
+    }
+    function errorBox(msg) {
+      return `<div class="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400">❌ ${escapeHtml(msg)}</div>`;
+    }
+    function successBox(msg) {
+      return `<div class="rounded-lg bg-green-500/10 border border-green-500/20 p-3 text-xs text-green-400">✓ ${msg}</div>`;
+    }
+
+    // =============================== DATA REFRESH ===============================
+    async function refreshAll() {
+      const [status, services, jobs, deployments, audit] = await Promise.all([
+        apiFetch('/api/status'),
+        apiFetch('/api/services'),
+        apiFetch('/api/jobs'),
+        apiFetch('/api/deployments'),
+        apiFetch('/api/audit?limit=50'),
+      ]);
+
+      renderStatus(status?.data || status);
+      renderServices(services?.data?.services || services?.data || services);
+      renderJobs(jobs?.data?.jobs || jobs?.data || jobs);
+      renderDeployments(deployments?.data || deployments);
+      renderAudit(audit?.data || audit);
+
+      const now = new Date();
+      const ts = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      document.getElementById('lastUpdated').textContent = ts;
+      document.getElementById('statusRefreshTime').textContent = `Updated ${ts}`;
+    }
+
+    // =============================== INTERSECTION OBSERVER ===============================
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState = 'running';
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => {
+      el.style.animationPlayState = 'paused';
+      observer.observe(el);
+    });
+    // Immediately trigger hero items
+    setTimeout(() => {
+      document.querySelectorAll('.fade-in').forEach(el => {
+        el.style.animationPlayState = 'running';
+      });
+    }, 100);
+
+    // =============================== INIT ===============================
+    (async function init() {
+      await refreshAll();
+      setInterval(refreshAll, REFRESH_INTERVAL);
+    })();
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { closeJobModal(); closeDeployModal(); }
+    });
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  </script>
+</body>
+</html>

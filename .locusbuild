@@ -1,0 +1,18 @@
+{
+  "services": {
+    "web": {
+      "path": ".",
+      "port": 8080,
+      "healthCheck": "/health",
+      "startCommand": "node dist/api/server.js",
+      "runtime": {
+        "cpu": 256,
+        "memory": 512
+      },
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": "8080"
+      }
+    }
+  }
+}
