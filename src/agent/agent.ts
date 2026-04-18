@@ -1,12 +1,23 @@
 /**
  * LancerAI Agent Core
  * The autonomous AI freelancer agent that accepts jobs, does work, and gets paid.
- * Supports: web_research, content_creation, data_analysis, translation, website_deployment, custom
+ * Supports: web_research, content_creation, data_analysis, translation, website_deployment,
+ *           human_task, image_generation, code_execution, crypto_analysis, custom
  */
 
 import { WalletService, WrappedApiService, CheckoutService, X402Service, TasksService, DeployService, FiverrService } from '../locus/index.js';
 
-export type JobType = 'web_research' | 'content_creation' | 'data_analysis' | 'translation' | 'website_deployment' | 'human_task' | 'custom';
+export type JobType =
+  | 'web_research'
+  | 'content_creation'
+  | 'data_analysis'
+  | 'translation'
+  | 'website_deployment'
+  | 'human_task'
+  | 'image_generation'
+  | 'code_execution'
+  | 'crypto_analysis'
+  | 'custom';
 
 export interface Job {
   id: string;
@@ -37,8 +48,8 @@ export interface AgentConfig {
 
 const DEFAULT_CONFIG: AgentConfig = {
   name: 'LancerAI',
-  description: 'Autonomous AI freelancer agent — deploys apps, researches the web, creates content, and more. Powered by Locus on Base.',
-  version: '0.2.0',
+  description: 'Autonomous AI freelancer agent — deploys apps, researches the web, creates content, generates images, executes code, and more. Powered by Locus on Base.',
+  version: '0.3.0',
   minProfitMargin: 0.2, // 20% minimum profit
   maxBudgetPerJob: 5.0,  // $5 max spend per job
 };
@@ -90,6 +101,33 @@ export const SERVICE_CATALOG = [
     icon: '🚀',
   },
   {
+    id: 'image_generation' as JobType,
+    name: 'AI Image Generation',
+    description: 'Generate stunning images from text prompts using Flux/Stable Diffusion via Locus',
+    price: 1.00,
+    priceLabel: '1.00 USDC',
+    estimatedTime: '30 seconds',
+    icon: '🎨',
+  },
+  {
+    id: 'code_execution' as JobType,
+    name: 'Code Execution',
+    description: 'Execute code in 60+ languages with sandboxed runtime (Python, JS, Rust, Go, etc.)',
+    price: 0.25,
+    priceLabel: '0.25 USDC',
+    estimatedTime: '10 seconds',
+    icon: '💻',
+  },
+  {
+    id: 'crypto_analysis' as JobType,
+    name: 'Crypto Market Analysis',
+    description: 'Real-time crypto market data from CoinGecko + AI-powered analysis and insights',
+    price: 0.75,
+    priceLabel: '0.75 USDC',
+    estimatedTime: '20 seconds',
+    icon: '📈',
+  },
+  {
     id: 'human_task' as JobType,
     name: 'Hire a Human',
     description: 'Escalate to a human freelancer via Locus Fiverr for tasks AI cannot do (design, review, specialized work)',
@@ -131,10 +169,15 @@ export class LancerAgent {
     this.deploy = new DeployService();
     this.fiverr = new FiverrService();
     this.startTime = Date.now();
+
+    if (process.env.DEMO_MODE === 'true') {
+      console.log('[Agent] 🎭 Running in DEMO MODE — mock data will be used for all API calls');
+    }
   }
 
   /** Get agent status */
   async getStatus() {
+    const isDemoMode = process.env.DEMO_MODE === 'true';
     let walletData: any = null;
     try {
       const balance = await this.wallet.getBalance();
@@ -156,6 +199,7 @@ export class LancerAgent {
       agent: this.config.name,
       version: this.config.version,
       description: this.config.description,
+      demoMode: isDemoMode,
       uptime: Math.floor((Date.now() - this.startTime) / 1000),
       wallet: walletData,
       jobs: {
@@ -187,7 +231,8 @@ export class LancerAgent {
 
   /** Accept and execute a job */
   async executeJob(job: Job): Promise<Job> {
-    console.log(`[Agent] 📋 Executing job: ${job.type} — ${job.description}`);
+    const isDemoMode = process.env.DEMO_MODE === 'true';
+    console.log(`[Agent] 📋 Executing job: ${job.type} — ${job.description}${isDemoMode ? ' [DEMO MODE]' : ''}`);
     job.status = 'in_progress';
     job.createdAt = job.createdAt || new Date().toISOString();
     this.jobs.set(job.id, job);
@@ -214,6 +259,15 @@ export class LancerAgent {
         case 'human_task':
           result = await this.doHumanTask(job);
           break;
+        case 'image_generation':
+          result = await this.doImageGeneration(job.description);
+          break;
+        case 'code_execution':
+          result = await this.doCodeExecution(job.description);
+          break;
+        case 'crypto_analysis':
+          result = await this.doCryptoAnalysis(job.description);
+          break;
         default:
           result = await this.doCustomJob(job.description);
       }
@@ -223,7 +277,7 @@ export class LancerAgent {
       job.cost = this.estimateCost(job);
       job.profit = job.budget - (job.cost || 0);
       job.completedAt = new Date().toISOString();
-      console.log(`[Agent] ✅ Job completed: ${job.id} (cost: $${job.cost}, profit: $${job.profit})`);
+      console.log(`[Agent] ✅ Job completed: ${job.id} (cost: $${job.cost}, profit: $${job.profit})${isDemoMode ? ' [DEMO]' : ''}`);
     } catch (err: any) {
       job.status = 'failed';
       job.result = { error: err.message };
@@ -287,6 +341,7 @@ export class LancerAgent {
       query,
       resultsFound: results.length,
       summaries,
+      _mock: searchResult._mock || false,
     };
   }
 
@@ -303,15 +358,25 @@ export class LancerAgent {
     return {
       prompt,
       content: result.data,
+      _mock: result._mock || false,
     };
   }
 
   /** Data Analysis: Process and analyze data */
   private async doDataAnalysis(query: string): Promise<any> {
+    // Search for relevant data
     const searchResult = await this.wrapped.braveSearch(query, 3);
+    
+    // Use Gemini to analyze
+    const analysisResult = await this.wrapped.geminiChat(
+      `You are a data analyst. Analyze the following topic and provide structured insights with key statistics, trends, and conclusions:\n\n${query}\n\nSearch context: ${JSON.stringify(searchResult.data?.web?.results?.slice(0, 3) || []).substring(0, 2000)}`
+    );
+
     return {
       query,
-      analysis: searchResult.data,
+      searchData: searchResult.data,
+      analysis: analysisResult.data,
+      _mock: searchResult._mock || false,
     };
   }
 
@@ -324,6 +389,7 @@ export class LancerAgent {
     return {
       request,
       translation: result.data,
+      _mock: result._mock || false,
     };
   }
 
@@ -362,6 +428,128 @@ export class LancerAgent {
     return {
       description,
       result: result.data,
+      _mock: result._mock || false,
+    };
+  }
+
+  // ==========================================
+  // NEW: Image Generation
+  // ==========================================
+
+  /** AI Image Generation: Create images from text prompts */
+  private async doImageGeneration(prompt: string): Promise<any> {
+    console.log(`[Agent] 🎨 Generating image for prompt: "${prompt.substring(0, 80)}..."`);
+    
+    const imageResult = await this.wrapped.generateImage(prompt);
+    
+    if (!imageResult.success) {
+      throw new Error(`Image generation failed: ${imageResult.message}`);
+    }
+
+    return {
+      prompt,
+      images: imageResult.data?.images || [],
+      model: imageResult.data?.model || 'fal-ai/flux/schnell',
+      parameters: imageResult.data?.parameters || {},
+      timings: imageResult.data?.timings || {},
+      _mock: imageResult._mock || false,
+    };
+  }
+
+  // ==========================================
+  // NEW: Code Execution
+  // ==========================================
+
+  /** Code Execution: Run code in sandboxed environment */
+  private async doCodeExecution(description: string): Promise<any> {
+    console.log(`[Agent] 💻 Executing code from description`);
+    
+    // Parse language and code from description
+    let language = 'python';
+    let code = description;
+
+    const langMatch = description.match(/language:\s*(\w+)/i);
+    if (langMatch) {
+      language = langMatch[1].toLowerCase();
+    }
+
+    const codeMatch = description.match(/```(?:\w+)?\n([\s\S]*?)```/);
+    if (codeMatch) {
+      code = codeMatch[1].trim();
+    } else {
+      // Try to extract code after the language line
+      const lines = description.split('\n');
+      const langLineIdx = lines.findIndex(l => /language:/i.test(l));
+      if (langLineIdx >= 0) {
+        code = lines.slice(langLineIdx + 1).join('\n').trim();
+      }
+    }
+
+    const execResult = await this.wrapped.executeCode(code, language);
+    
+    if (!execResult.success) {
+      throw new Error(`Code execution failed: ${execResult.message}`);
+    }
+
+    return {
+      language,
+      code,
+      output: execResult.data?.stdout || '',
+      stderr: execResult.data?.stderr || '',
+      exitCode: execResult.data?.exitCode ?? 0,
+      executionTime: execResult.data?.time || null,
+      memory: execResult.data?.memory || null,
+      _mock: execResult._mock || false,
+    };
+  }
+
+  // ==========================================
+  // NEW: Crypto Market Analysis
+  // ==========================================
+
+  /** Crypto Analysis: Market data + AI insights */
+  private async doCryptoAnalysis(query: string): Promise<any> {
+    console.log(`[Agent] 📈 Running crypto analysis for: "${query.substring(0, 80)}"`);
+    
+    // Step 1: Get market data
+    const marketData = await this.wrapped.getCryptoMarkets();
+    
+    if (!marketData.success) {
+      throw new Error(`Market data fetch failed: ${marketData.message}`);
+    }
+
+    // Step 2: Use Gemini to analyze the data
+    const markets = marketData.data?.markets || [];
+    const analysisPrompt = `You are a crypto market analyst. Analyze the following cryptocurrency market data and answer this question: "${query}"
+
+Market Data:
+${JSON.stringify(markets.slice(0, 10), null, 2).substring(0, 3000)}
+
+Provide a concise analysis with:
+1. Key market observations
+2. Notable trends and price movements
+3. Risk assessment
+4. Actionable insights`;
+
+    const analysis = await this.wrapped.geminiChat(analysisPrompt);
+
+    return {
+      query,
+      marketData: {
+        topCoins: markets.slice(0, 10).map((c: any) => ({
+          name: c.name,
+          symbol: c.symbol,
+          price: c.current_price,
+          change24h: c.price_change_percentage_24h,
+          change7d: c.price_change_percentage_7d,
+          marketCap: c.market_cap,
+        })),
+        fetchedAt: marketData.data?.fetchedAt || new Date().toISOString(),
+      },
+      analysis: analysis.data?.candidates?.[0]?.content?.parts?.[0]?.text
+        || analysis.data?.choices?.[0]?.message?.content
+        || JSON.stringify(analysis.data),
+      _mock: marketData._mock || false,
     };
   }
 
@@ -464,5 +652,10 @@ export class LancerAgent {
   /** Get the Fiverr service instance */
   getFiverrService(): FiverrService {
     return this.fiverr;
+  }
+
+  /** Get the wrapped API service instance */
+  getWrappedService(): WrappedApiService {
+    return this.wrapped;
   }
 }

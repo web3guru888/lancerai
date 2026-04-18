@@ -227,7 +227,7 @@
             <span class="bg-gradient-to-r from-purple-400 via-violet-400 to-blue-400 bg-clip-text text-transparent gradient-flow">AI That Earns.</span>
           </h2>
           <p class="text-gray-400 text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-8">
-            An autonomous AI agent that accepts freelance jobs, pays for tools with USDC, hires humans when needed, and delivers results — all on-chain.
+            An autonomous AI agent that accepts freelance jobs, uses 299+ paid API tools with USDC, hires humans when needed, and delivers results — all on-chain via Locus on Base.
           </p>
           <div class="flex flex-wrap items-center justify-center gap-3">
             <button onclick="document.getElementById('try-it').scrollIntoView({behavior:'smooth'})" class="btn-primary rounded-xl px-6 py-3 text-sm font-bold flex items-center gap-2">
@@ -401,10 +401,12 @@
             </div>
             <p class="text-xs text-gray-400 leading-relaxed">Pay-per-call access to web scraping, AI inference, data extraction, translation, and more — all billed in USDC.</p>
             <div class="mt-3 pt-3 border-t border-white/5 flex flex-wrap gap-1">
+              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">Brave</span>
               <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">Firecrawl</span>
-              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">SerpAPI</span>
+              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">Gemini</span>
               <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">OpenAI</span>
-              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">+47</span>
+              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-gray-400">DeepL</span>
+              <span class="text-[10px] glass-light rounded px-1.5 py-0.5 text-purple-400 font-semibold">+299 APIs</span>
             </div>
           </div>
           <!-- Checkout -->
@@ -603,6 +605,169 @@
         </div>
       </section>
 
+      <!-- ══════════════════ WRAPPED API CATALOG ══════════════════ -->
+      <section class="fade-in" style="animation-delay:0.5s">
+        <div class="glass rounded-2xl p-6 sm:p-8">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+              <h2 class="text-lg font-bold">299+ Wrapped APIs</h2>
+            </div>
+            <span class="badge bg-purple-500/15 text-purple-400">Pay-per-call USDC</span>
+          </div>
+          <p class="text-xs text-gray-400 mb-5 max-w-2xl">LancerAI has access to <strong class="text-white">299+ premium API endpoints</strong> via Locus Wrapped APIs — all billed in USDC on Base. No API key management, no subscriptions. Just pay-per-call.</p>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2" id="wrappedCatalog">
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🔍</p>
+              <p class="text-[11px] font-bold text-white">Brave Search</p>
+              <p class="text-[9px] text-gray-500">6 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🕷️</p>
+              <p class="text-[11px] font-bold text-white">Firecrawl</p>
+              <p class="text-[9px] text-gray-500">9 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🤖</p>
+              <p class="text-[11px] font-bold text-white">OpenAI</p>
+              <p class="text-[9px] text-gray-500">5 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">💎</p>
+              <p class="text-[11px] font-bold text-white">Gemini</p>
+              <p class="text-[9px] text-gray-500">3 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🧠</p>
+              <p class="text-[11px] font-bold text-white">Anthropic</p>
+              <p class="text-[9px] text-gray-500">2 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🌐</p>
+              <p class="text-[11px] font-bold text-white">DeepL</p>
+              <p class="text-[9px] text-gray-500">3 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🎨</p>
+              <p class="text-[11px] font-bold text-white">Stability AI</p>
+              <p class="text-[9px] text-gray-500">19 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">📈</p>
+              <p class="text-[11px] font-bold text-white">CoinGecko</p>
+              <p class="text-[9px] text-gray-500">16 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">💻</p>
+              <p class="text-[11px] font-bold text-white">Judge0</p>
+              <p class="text-[9px] text-gray-500">5 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🐦</p>
+              <p class="text-[11px] font-bold text-white">X (Twitter)</p>
+              <p class="text-[9px] text-gray-500">14 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🗺️</p>
+              <p class="text-[11px] font-bold text-white">Mapbox</p>
+              <p class="text-[9px] text-gray-500">8 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">📊</p>
+              <p class="text-[11px] font-bold text-white">AlphaVantage</p>
+              <p class="text-[9px] text-gray-500">26 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🔒</p>
+              <p class="text-[11px] font-bold text-white">VirusTotal</p>
+              <p class="text-[9px] text-gray-500">18 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🎵</p>
+              <p class="text-[11px] font-bold text-white">Suno</p>
+              <p class="text-[9px] text-gray-500">4 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🎙️</p>
+              <p class="text-[11px] font-bold text-white">Deepgram</p>
+              <p class="text-[9px] text-gray-500">4 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🔮</p>
+              <p class="text-[11px] font-bold text-white">Perplexity</p>
+              <p class="text-[9px] text-gray-500">4 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">⚡</p>
+              <p class="text-[11px] font-bold text-white">Grok</p>
+              <p class="text-[9px] text-gray-500">6 endpoints</p>
+            </div>
+            <div class="glass-light rounded-lg p-3 text-center hover:border-purple-500/30 border border-transparent transition-all cursor-default">
+              <p class="text-lg mb-1">🔬</p>
+              <p class="text-[11px] font-bold text-white">+10 more</p>
+              <p class="text-[9px] text-purple-400">27 providers</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════ BUILT BY AI ══════════════════ -->
+      <section class="fade-in" style="animation-delay:0.55s">
+        <div class="glass rounded-2xl p-6 sm:p-8 glow-blue">
+          <div class="flex items-center gap-2 mb-5">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-sm">🤖</div>
+            <h2 class="text-lg font-bold">Built By AI Agents</h2>
+            <span class="badge bg-violet-500/15 text-violet-400">Meta</span>
+          </div>
+          <p class="text-xs text-gray-400 leading-relaxed mb-5 max-w-2xl">This entire project — every line of code, every API integration, every design decision — was built autonomously by a team of AI agents. No human wrote a single line.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="glass-light rounded-xl p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-7 h-7 rounded-lg bg-purple-500/20 flex items-center justify-center text-xs">👑</div>
+                <div>
+                  <p class="text-xs font-bold text-white">Coordinator</p>
+                  <p class="text-[9px] text-gray-500">Claude Sonnet</p>
+                </div>
+              </div>
+              <p class="text-[10px] text-gray-400 leading-relaxed">Orchestrates the team, makes architectural decisions, reviews code, manages hackathon timeline</p>
+            </div>
+            <div class="glass-light rounded-xl p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center text-xs">⚙️</div>
+                <div>
+                  <p class="text-xs font-bold text-white">Engineer</p>
+                  <p class="text-[9px] text-gray-500">Claude Opus</p>
+                </div>
+              </div>
+              <p class="text-[10px] text-gray-400 leading-relaxed">Builds Locus API integrations, TypeScript codebase, Express server, Docker configs</p>
+            </div>
+            <div class="glass-light rounded-xl p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-7 h-7 rounded-lg bg-green-500/20 flex items-center justify-center text-xs">🔭</div>
+                <div>
+                  <p class="text-xs font-bold text-white">Scout</p>
+                  <p class="text-[9px] text-gray-500">Claude Sonnet</p>
+                </div>
+              </div>
+              <p class="text-[10px] text-gray-400 leading-relaxed">Monitors Locus docs, Discord, competitor submissions. Provides real-time intelligence</p>
+            </div>
+            <div class="glass-light rounded-xl p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-7 h-7 rounded-lg bg-amber-500/20 flex items-center justify-center text-xs">✍️</div>
+                <div>
+                  <p class="text-xs font-bold text-white">Writer</p>
+                  <p class="text-[9px] text-gray-500">Claude Sonnet</p>
+                </div>
+              </div>
+              <p class="text-[10px] text-gray-400 leading-relaxed">Creates documentation, README, business plan, video scripts, submission materials</p>
+            </div>
+          </div>
+          <div class="mt-5 pt-4 border-t border-white/5 text-center">
+            <p class="text-[11px] text-gray-500 italic">"An AI agent that earns money… built by AI agents that work for free. The irony isn't lost on us."</p>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <!-- ══════════════════ FOOTER ══════════════════ -->
@@ -720,9 +885,89 @@
   <script>
     // =============================== CONFIG ===============================
     const API_BASE = window.location.origin;
-    const REFRESH_INTERVAL = 10000;
+    const REFRESH_INTERVAL = 15000;
     let currentTab = 'jobs';
     let selectedTryService = 'web_research';
+    let isOfflineMode = false;
+
+    // =============================== DEMO FALLBACK DATA ===============================
+    // When the live API is unreachable, the dashboard shows realistic demo data
+    const DEMO_DATA = {
+      status: {
+        agent: 'LancerAI',
+        version: '0.3.0',
+        description: 'Autonomous AI freelancer agent — deploys apps, researches the web, creates content, generates images, and more. Powered by Locus on Base.',
+        uptime: 14820,
+        wallet: {
+          address: '0x993e64875b8a3fbeae2da327a546610c0d6435f1',
+          balance: '8.42',
+          promoCredits: '10',
+          chain: 'base',
+          allowance: 10,
+          maxTxSize: 5,
+        },
+        jobs: { total: 12, pending: 1, inProgress: 1, completed: 9, failed: 1 },
+        services: 10,
+        deployments: 2,
+      },
+      services: [
+        { id: 'web_research', name: 'Web Research', description: 'Search the web, scrape relevant pages, and provide a structured summary using Brave Search + Firecrawl', price: 0.50, priceLabel: '0.50 USDC', estimatedTime: '30 seconds', icon: '🔍' },
+        { id: 'content_creation', name: 'Content Creation', description: 'Generate high-quality written content using Gemini, GPT-4, or Claude via Locus Wrapped APIs', price: 0.50, priceLabel: '0.50 USDC', estimatedTime: '20 seconds', icon: '✍️' },
+        { id: 'data_analysis', name: 'Data Analysis', description: 'Analyze data, compute statistics, and answer complex analytical questions', price: 1.00, priceLabel: '1.00 USDC', estimatedTime: '45 seconds', icon: '📊' },
+        { id: 'translation', name: 'Translation', description: 'Professional-quality translation between 30+ languages via DeepL', price: 0.25, priceLabel: '0.25 USDC', estimatedTime: '15 seconds', icon: '🌐' },
+        { id: 'image_generation', name: 'AI Image Generation', description: 'Generate images using Stable Diffusion, DALL-E, or Fal.ai via Locus Wrapped APIs', price: 0.75, priceLabel: '0.75 USDC', estimatedTime: '30 seconds', icon: '🎨' },
+        { id: 'code_execution', name: 'Code Execution', description: 'Execute code in 60+ languages via Judge0 sandbox — Python, JS, Rust, Go, and more', price: 0.30, priceLabel: '0.30 USDC', estimatedTime: '10 seconds', icon: '💻' },
+        { id: 'crypto_analysis', name: 'Crypto Market Analysis', description: 'Real-time crypto market data and AI-powered analysis via CoinGecko + Gemini', price: 0.50, priceLabel: '0.50 USDC', estimatedTime: '20 seconds', icon: '📈' },
+        { id: 'website_deployment', name: 'Website Deployment', description: 'Deploy a website or app from a GitHub repo via BuildWithLocus (Railway-powered). Returns a live public URL.', price: 2.00, priceLabel: '2.00 USDC', estimatedTime: '2-5 minutes', icon: '🚀' },
+        { id: 'human_task', name: 'Hire a Human', description: 'Escalate to a human freelancer via Locus Fiverr for tasks AI cannot do (design, review, specialized work)', price: 15.00, priceLabel: 'from 15 USDC', estimatedTime: '1-7 days', icon: '👤' },
+        { id: 'custom', name: 'Custom Task', description: 'Describe what you need — the agent will figure it out using 299+ Wrapped APIs', price: 1.00, priceLabel: 'varies', estimatedTime: 'varies', icon: '🤖' },
+      ],
+      jobs: [
+        { id: 'a7c3e1f0-demo-4b2a-8d91-f3e2c1a0b5d7', type: 'web_research', description: 'Research latest DeFi trends on Base network', status: 'completed', cost: 0.42, budget: 0.50, profit: 0.08, createdAt: new Date(Date.now() - 3600000).toISOString(), completedAt: new Date(Date.now() - 3570000).toISOString() },
+        { id: 'b8d4f2e1-demo-5c3b-9e02-g4f3d2b1c6e8', type: 'content_creation', description: 'Write a blog post about autonomous AI agents in crypto', status: 'completed', cost: 0.38, budget: 0.50, profit: 0.12, createdAt: new Date(Date.now() - 7200000).toISOString(), completedAt: new Date(Date.now() - 7180000).toISOString() },
+        { id: 'c9e5g3f2-demo-6d4c-af13-h5g4e3c2d7f9', type: 'translation', description: 'Translate product description to Spanish, French, German', status: 'completed', cost: 0.18, budget: 0.25, profit: 0.07, createdAt: new Date(Date.now() - 10800000).toISOString(), completedAt: new Date(Date.now() - 10790000).toISOString() },
+        { id: 'd0f6h4g3-demo-7e5d-bg24-i6h5f4d3e8g0', type: 'image_generation', description: 'Create a futuristic AI agent logo with blockchain elements', status: 'completed', cost: 0.65, budget: 0.75, profit: 0.10, createdAt: new Date(Date.now() - 14400000).toISOString(), completedAt: new Date(Date.now() - 14370000).toISOString() },
+        { id: 'e1g7i5h4-demo-8f6e-ch35-j7i6g5e4f9h1', type: 'crypto_analysis', description: 'Analyze USDC/ETH pair on Base — 7-day trend report', status: 'in_progress', cost: null, budget: 0.50, createdAt: new Date(Date.now() - 120000).toISOString() },
+        { id: 'f2h8j6i5-demo-9g7f-di46-k8j7h6f5g0i2', type: 'website_deployment', description: 'Deploy portfolio site from https://github.com/demo/portfolio', status: 'completed', cost: 1.80, budget: 2.00, profit: 0.20, createdAt: new Date(Date.now() - 18000000).toISOString(), completedAt: new Date(Date.now() - 17700000).toISOString(), deployedUrl: 'https://portfolio-demo.buildwithlocus.com' },
+        { id: 'g3i9k7j6-demo-0h8g-ej57-l9k8i7g6h1j3', type: 'code_execution', description: 'Run Python data pipeline — parse CSV, compute aggregates, output JSON', status: 'completed', cost: 0.22, budget: 0.30, profit: 0.08, createdAt: new Date(Date.now() - 21600000).toISOString(), completedAt: new Date(Date.now() - 21590000).toISOString() },
+        { id: 'h4j0l8k7-demo-1i9h-fk68-m0l9j8h7i2k4', type: 'web_research', description: 'Find competitors for AI-powered payment solutions', status: 'completed', cost: 0.40, budget: 0.50, profit: 0.10, createdAt: new Date(Date.now() - 25200000).toISOString(), completedAt: new Date(Date.now() - 25170000).toISOString() },
+        { id: 'i5k1m9l8-demo-2j0i-gl79-n1m0k9i8j3l5', type: 'human_task', description: 'Design a professional pitch deck for LancerAI — 10 slides, modern style', status: 'pending', cost: null, budget: 15.00, createdAt: new Date(Date.now() - 60000).toISOString(), escalatedTo: 'fiverr' },
+      ],
+      deployments: [
+        { name: 'lancerai-dashboard', status: 'active', url: 'https://lancerai.buildwithlocus.com', createdAt: new Date(Date.now() - 28800000).toISOString() },
+        { name: 'portfolio-demo', status: 'active', url: 'https://portfolio-demo.buildwithlocus.com', createdAt: new Date(Date.now() - 18000000).toISOString() },
+      ],
+      audit: {
+        log: [
+          { timestamp: new Date(Date.now() - 30000).toISOString(), method: 'POST', path: '/api/jobs', status: 200, duration: 2340 },
+          { timestamp: new Date(Date.now() - 60000).toISOString(), method: 'GET', path: '/api/status', status: 200, duration: 145 },
+          { timestamp: new Date(Date.now() - 90000).toISOString(), method: 'POST', path: '/api/wrapped/brave/web-search', status: 200, duration: 1820 },
+          { timestamp: new Date(Date.now() - 120000).toISOString(), method: 'POST', path: '/api/wrapped/gemini/chat', status: 200, duration: 3100 },
+          { timestamp: new Date(Date.now() - 150000).toISOString(), method: 'GET', path: '/api/wallet', status: 200, duration: 230 },
+          { timestamp: new Date(Date.now() - 180000).toISOString(), method: 'POST', path: '/api/checkout/create', status: 200, duration: 890 },
+          { timestamp: new Date(Date.now() - 210000).toISOString(), method: 'GET', path: '/api/services', status: 200, duration: 12 },
+          { timestamp: new Date(Date.now() - 300000).toISOString(), method: 'POST', path: '/api/deploy', status: 200, duration: 15200 },
+          { timestamp: new Date(Date.now() - 600000).toISOString(), method: 'POST', path: '/api/wrapped/firecrawl/scrape', status: 200, duration: 4500 },
+          { timestamp: new Date(Date.now() - 900000).toISOString(), method: 'POST', path: '/api/hire', status: 200, duration: 2100 },
+        ],
+        total: 47,
+      },
+      wrappedCatalog: {
+        totalEndpoints: 299,
+        providers: ['firecrawl', 'exa', 'clado', 'browser-use', 'fal', 'apollo', 'x (Twitter)', 'gemini', 'grok', 'openai', 'anthropic', 'perplexity', 'deepl', 'brave', 'coingecko', 'stability-ai', 'judge0', 'alphavantage', 'replicate', 'suno', 'deepgram', 'tavily', 'mapbox', 'wolframalpha', 'deepseek', 'groq', 'mistral'],
+      },
+    };
+
+    // Demo mode job simulation
+    const DEMO_RESULTS = {
+      web_research: { query: 'AI agent payments', resultsFound: 5, summaries: [{ url: 'https://example.com/ai-payments', title: 'AI Agents Are Revolutionizing Payments', content: 'Autonomous AI agents are increasingly managing financial operations including USDC payments on Base network. The trend towards agent-to-agent commerce is accelerating...' }] },
+      content_creation: { prompt: 'Write about AI agents', content: 'The Rise of Autonomous AI Agents\n\nArtificial intelligence has evolved beyond simple chatbots into fully autonomous agents capable of managing complex workflows, handling financial transactions, and even hiring human collaborators when needed...' },
+      translation: { request: 'Hello world', translation: { text: ['Hola mundo'], source_lang: 'EN', target_lang: 'ES' } },
+      image_generation: { prompt: 'AI agent', imageUrl: 'https://via.placeholder.com/512x512?text=AI+Generated+Image', model: 'stable-diffusion-xl' },
+      code_execution: { language: 'python', output: '{"result": 42, "status": "success"}', executionTime: '0.23s' },
+      crypto_analysis: { symbol: 'ETH', price: '$3,247.82', change24h: '+2.4%', analysis: 'Ethereum showing bullish momentum on Base L2 with increased DeFi activity.' },
+      custom: { description: 'Custom task', result: 'Task completed successfully using Locus Wrapped APIs.' },
+    };
 
     // =============================== HELPERS ===============================
     function truncAddr(addr) {
@@ -765,29 +1010,106 @@
       data_analysis:      { icon: '📊', color: 'from-blue-500/20 to-cyan-500/20', accent: 'text-blue-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>` },
       web_scraping:       { icon: '🌐', color: 'from-pink-500/20 to-rose-500/20', accent: 'text-pink-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>` },
       translation:        { icon: '🌐', color: 'from-teal-500/20 to-cyan-500/20', accent: 'text-teal-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>` },
+      image_generation:   { icon: '🎨', color: 'from-rose-500/20 to-pink-500/20', accent: 'text-rose-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>` },
+      code_execution:     { icon: '💻', color: 'from-amber-500/20 to-yellow-500/20', accent: 'text-amber-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>` },
+      crypto_analysis:    { icon: '📈', color: 'from-green-500/20 to-emerald-500/20', accent: 'text-green-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>` },
       website_deployment: { icon: '🚀', color: 'from-cyan-500/20 to-blue-500/20', accent: 'text-cyan-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>` },
+      human_task:         { icon: '👤', color: 'from-indigo-500/20 to-violet-500/20', accent: 'text-indigo-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>` },
       custom:             { icon: '⚡', color: 'from-violet-500/20 to-purple-500/20', accent: 'text-violet-400', svg: `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>` },
     };
     function getSvcMeta(type) { return svcMeta[type] || svcMeta.custom; }
 
     // =============================== API ===============================
+    function getDemoFallback(path) {
+      if (path.includes('/api/status')) return { success: true, data: DEMO_DATA.status };
+      if (path.includes('/api/services')) return { success: true, data: { services: DEMO_DATA.services } };
+      if (path.includes('/api/jobs') && !path.includes(':')) return { success: true, data: { jobs: DEMO_DATA.jobs, total: DEMO_DATA.jobs.length } };
+      if (path.includes('/api/deployments')) return { success: true, data: { deployments: DEMO_DATA.deployments } };
+      if (path.includes('/api/audit')) return { success: true, data: DEMO_DATA.audit };
+      return null;
+    }
+
     async function apiFetch(path) {
       try {
-        const res = await fetch(API_BASE + path);
+        const res = await fetch(API_BASE + path, { signal: AbortSignal.timeout(5000) });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
+        const data = await res.json();
+        if (isOfflineMode) {
+          isOfflineMode = false;
+          showModeBanner(false);
+        }
+        return data;
       } catch (err) {
         console.warn(`[API] ${path}:`, err.message);
-        return null;
+        if (!isOfflineMode) {
+          isOfflineMode = true;
+          showModeBanner(true);
+        }
+        return getDemoFallback(path);
       }
     }
+
     async function apiPost(path, body) {
-      const res = await fetch(API_BASE + path, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      return await res.json();
+      if (isOfflineMode) {
+        // Simulate job execution in demo mode
+        await new Promise(r => setTimeout(r, 1500 + Math.random() * 2000));
+        const type = body?.type || 'custom';
+        const demoResult = DEMO_RESULTS[type] || DEMO_RESULTS.custom;
+        return {
+          success: true,
+          data: {
+            job: {
+              id: 'demo-' + Math.random().toString(36).slice(2, 10),
+              type,
+              description: body?.description || 'Demo job',
+              status: 'completed',
+              result: demoResult,
+              cost: DEMO_DATA.services.find(s => s.id === type)?.price || 0.50,
+              budget: body?.budget || 1.00,
+              profit: (body?.budget || 1.00) - (DEMO_DATA.services.find(s => s.id === type)?.price || 0.50),
+              createdAt: new Date().toISOString(),
+              completedAt: new Date().toISOString(),
+              _demo: true,
+            },
+            estimatedCost: DEMO_DATA.services.find(s => s.id === type)?.price || 0.50,
+            profitable: true,
+          },
+        };
+      }
+      try {
+        const res = await fetch(API_BASE + path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          signal: AbortSignal.timeout(30000),
+        });
+        return await res.json();
+      } catch (err) {
+        // Fall back to demo mode
+        isOfflineMode = true;
+        showModeBanner(true);
+        return apiPost(path, body);
+      }
+    }
+
+    function showModeBanner(offline) {
+      let banner = document.getElementById('modeBanner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'modeBanner';
+        banner.className = 'fixed bottom-4 right-4 z-50 rounded-xl px-4 py-2 text-xs font-medium shadow-lg transition-all duration-300';
+        document.body.appendChild(banner);
+      }
+      if (offline) {
+        banner.className = 'fixed bottom-4 right-4 z-50 rounded-xl px-4 py-2 text-xs font-medium shadow-lg transition-all duration-300 bg-amber-500/20 border border-amber-500/30 text-amber-300 backdrop-blur-xl';
+        banner.innerHTML = '🎭 Demo Mode — Showing simulated data <span class="text-amber-500/60 ml-2">Agent offline</span>';
+        banner.style.opacity = '1';
+      } else {
+        banner.className = 'fixed bottom-4 right-4 z-50 rounded-xl px-4 py-2 text-xs font-medium shadow-lg transition-all duration-300 bg-green-500/20 border border-green-500/30 text-green-300 backdrop-blur-xl';
+        banner.innerHTML = '🟢 Live Mode — Connected to LancerAI agent';
+        banner.style.opacity = '1';
+        setTimeout(() => { banner.style.opacity = '0'; }, 3000);
+      }
     }
 
     // =============================== RENDER: STATUS ===============================
