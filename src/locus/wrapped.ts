@@ -295,7 +295,7 @@ export class WrappedApiService {
   }
 
   /** Gemini: Chat */
-  async geminiChat(prompt: string, model = 'gemini-2.0-flash'): Promise<WrappedApiResult> {
+  async geminiChat(prompt: string, model = 'gemini-2.5-flash'): Promise<WrappedApiResult> {
     if (isDemoMode()) {
       demoLog('geminiChat');
       return mockResponse({
@@ -615,7 +615,7 @@ export class WrappedApiService {
       { id: 'exa', name: 'Exa', description: 'Semantic / neural search', category: 'search' },
       { id: 'firecrawl', name: 'Firecrawl', description: 'Web scraping and crawling', category: 'data' },
       { id: 'openai', name: 'OpenAI', description: 'GPT-4o chat completions, embeddings, DALL-E', category: 'ai' },
-      { id: 'gemini', name: 'Google Gemini', description: 'Gemini 2.0 Flash chat', category: 'ai' },
+      { id: 'gemini', name: 'Google Gemini', description: 'Gemini 2.5 Flash chat', category: 'ai' },
       { id: 'deepseek', name: 'DeepSeek', description: 'DeepSeek-V3, R1 reasoning', category: 'ai' },
       { id: 'screenshotone', name: 'ScreenshotOne', description: 'Website screenshots', category: 'utility' },
       { id: 'resend', name: 'Resend', description: 'Transactional email sending', category: 'communication' },

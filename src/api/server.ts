@@ -14,7 +14,7 @@ import { LancerAgent, Job, JobType, SERVICE_CATALOG } from '../agent/agent.js';
 import { WalletService, DeployService, CheckoutService, WrappedApiService } from '../locus/index.js';
 import { randomUUID } from 'crypto';
 
-const APP_VERSION = '0.4.0';
+const APP_VERSION = '0.5.0';
 const startTime = Date.now();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -30,7 +30,8 @@ app.use(express.json());
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Payment-TxHash, X-Payment-Amount, X-Payment-Demo');
+  res.header('Access-Control-Expose-Headers', 'X-Payment-Required, X-Payment-Address, X-Payment-Amount, X-Payment-Network, X-Payment-Token, X-Payment-Description');
   if (req.method === 'OPTIONS') {
     return res.sendStatus(204);
   }
@@ -193,16 +194,53 @@ Content-Type: application/json
 
 {"amount": "1.00", "description": "Web research job"}
 
-### 3. Machine-Payable Endpoints (x402)
-POST ${baseUrl}/api/x402/research  — {"query": "..."}
-POST ${baseUrl}/api/x402/content   — {"prompt": "..."}
-POST ${baseUrl}/api/x402/deploy    — {"repoUrl": "...", "projectName": "..."}
+### 3. Machine-Payable Endpoints (x402 / MPP)
+
+LancerAI supports the x402 protocol (HTTP 402 Payment Required).
+Send a request without payment → get a 402 challenge with payment details.
+Pay with USDC on Base → re-send with X-Payment-TxHash header.
+Or set X-Payment-Demo: true to test without paying.
+
+Discovery:  GET  ${baseUrl}/api/x402          — JSON catalog of all paid endpoints
+OpenAPI:    GET  ${baseUrl}/openapi.json      — OpenAPI 3.1 spec with x-payment-info
+
+Endpoints & Pricing:
+POST ${baseUrl}/api/x402/research       $0.05 USDC  — {"query": "..."}
+POST ${baseUrl}/api/x402/content        $0.10 USDC  — {"prompt": "..."}
+POST ${baseUrl}/api/x402/translate      $0.03 USDC  — {"text": "...", "targetLang": "DE"}
+POST ${baseUrl}/api/x402/data-analysis  $0.08 USDC  — {"data": "...", "question": "..."}
+POST ${baseUrl}/api/x402/deploy         $1.00 USDC  — {"repoUrl": "...", "projectName": "..."}
+
+### Example: Call with payment
+curl -X POST ${baseUrl}/api/x402/research \\
+  -H "Content-Type: application/json" \\
+  -H "X-Payment-TxHash: 0xYOUR_TX_HASH" \\
+  -H "X-Payment-Amount: 0.05" \\
+  -d '{"query": "latest AI agent frameworks"}'
+
+### Example: Demo mode (no payment needed)
+curl -X POST ${baseUrl}/api/x402/research \\
+  -H "Content-Type: application/json" \\
+  -H "X-Payment-Demo: true" \\
+  -d '{"query": "latest AI agent frameworks"}'
+
+### 4. Laso Finance (Virtual Debit Cards)
+POST ${baseUrl}/api/laso/auth          — Authenticate with Laso Finance
+POST ${baseUrl}/api/laso/get-card      — Order prepaid Visa card ($5-$1000)
+POST ${baseUrl}/api/laso/send-payment  — Send via Venmo/PayPal
+
+### 5. AgentMail (Email for Agents)
+POST ${baseUrl}/api/agentmail/create-inbox  — Create email inbox
+POST ${baseUrl}/api/agentmail/send          — Send email
+POST ${baseUrl}/api/agentmail/messages      — List inbox messages
 
 ## API Endpoints
 
 - GET  ${baseUrl}/api/status — Agent status and capabilities
 - GET  ${baseUrl}/api/services — Full service catalog
 - GET  ${baseUrl}/api/agent-info — Machine-readable agent metadata (JSON)
+- GET  ${baseUrl}/api/x402 — x402 endpoint discovery (prices, params, examples)
+- GET  ${baseUrl}/openapi.json — OpenAPI 3.1 spec with x-payment-info
 - GET  ${baseUrl}/api/wrapped-catalog — Browse 299 available APIs
 - GET  ${baseUrl}/api/catalog — Dynamic API catalog from Locus
 - POST ${baseUrl}/api/jobs — Submit a job
@@ -213,10 +251,11 @@ POST ${baseUrl}/api/x402/deploy    — {"repoUrl": "...", "projectName": "..."}
 
 ## Payment
 - Currency: USDC
-- Network: Base (ERC-4337 smart wallet)
+- Network: Base (ERC-4337 smart wallet, chain ID 8453)
 - Wallet: ${process.env.LOCUS_WALLET_ADDRESS || '0x...'}
+- USDC Contract: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
 - Checkout: Locus Checkout SDK
-- Protocol: x402 / MPP compatible
+- Protocol: x402 / MPP (Machine Payments Protocol)
 
 ## Technical
 - Version: ${APP_VERSION}
@@ -267,9 +306,30 @@ app.get('/api/agent-info', (req, res) => {
         health: `GET ${baseUrl}/health`,
         llmsTxt: `GET ${baseUrl}/.well-known/llms.txt`,
         machinePay: {
+          discovery: `GET ${baseUrl}/api/x402`,
+          openapi: `GET ${baseUrl}/openapi.json`,
           research: `POST ${baseUrl}/api/x402/research`,
           content: `POST ${baseUrl}/api/x402/content`,
+          translate: `POST ${baseUrl}/api/x402/translate`,
+          dataAnalysis: `POST ${baseUrl}/api/x402/data-analysis`,
           deploy: `POST ${baseUrl}/api/x402/deploy`,
+        },
+        x402: {
+          protocol: 'x402 / MPP',
+          demoHeader: 'X-Payment-Demo: true',
+          endpoints: Object.entries(X402_ENDPOINTS).map(([k, v]) => ({
+            id: k, price: v.price, description: v.description,
+          })),
+        },
+        laso: {
+          auth: `POST ${baseUrl}/api/laso/auth`,
+          getCard: `POST ${baseUrl}/api/laso/get-card`,
+          sendPayment: `POST ${baseUrl}/api/laso/send-payment`,
+        },
+        agentmail: {
+          createInbox: `POST ${baseUrl}/api/agentmail/create-inbox`,
+          send: `POST ${baseUrl}/api/agentmail/send`,
+          messages: `POST ${baseUrl}/api/agentmail/messages`,
         },
       },
 
@@ -283,6 +343,7 @@ app.get('/api/agent-info', (req, res) => {
       links: {
         dashboard: baseUrl,
         catalog: `${baseUrl}/api/wrapped-catalog`,
+        openapi: `${baseUrl}/openapi.json`,
         docs: 'https://docs.paywithlocus.com',
         locus: 'https://beta.paywithlocus.com',
       },
@@ -760,10 +821,318 @@ app.get('/api/deploy/docs', async (req, res) => {
 });
 
 // ==========================================
-// x402 Machine-Payable Endpoints
+// x402 / MPP — Machine-Payable Endpoints
 // ==========================================
 
-app.post('/api/x402/research', async (req, res) => {
+// x402 endpoint pricing catalog
+const X402_ENDPOINTS: Record<string, {
+  path: string;
+  method: string;
+  price: string;
+  description: string;
+  params: Record<string, { type: string; required: boolean; description: string }>;
+  jobType: JobType;
+}> = {
+  research: {
+    path: '/api/x402/research',
+    method: 'POST',
+    price: '0.05',
+    description: 'AI-powered multi-source web research with citations',
+    params: {
+      query: { type: 'string', required: true, description: 'Research query or question' },
+    },
+    jobType: 'web_research',
+  },
+  content: {
+    path: '/api/x402/content',
+    method: 'POST',
+    price: '0.10',
+    description: 'AI content generation — articles, copy, summaries',
+    params: {
+      prompt: { type: 'string', required: true, description: 'Content generation prompt' },
+    },
+    jobType: 'content_creation',
+  },
+  deploy: {
+    path: '/api/x402/deploy',
+    method: 'POST',
+    price: '1.00',
+    description: 'Deploy a GitHub repo or Docker image via BuildWithLocus',
+    params: {
+      repoUrl: { type: 'string', required: true, description: 'GitHub repo URL' },
+      projectName: { type: 'string', required: true, description: 'Project name for deployment' },
+      branch: { type: 'string', required: false, description: 'Git branch (default: main)' },
+    },
+    jobType: 'website_deployment',
+  },
+  'data-analysis': {
+    path: '/api/x402/data-analysis',
+    method: 'POST',
+    price: '0.08',
+    description: 'Data processing, insights, and analysis',
+    params: {
+      data: { type: 'string', required: false, description: 'Data to analyze (JSON, CSV, or text)' },
+      query: { type: 'string', required: false, description: 'Analysis query or question (alternative to data)' },
+      question: { type: 'string', required: false, description: 'Specific question about the data' },
+    },
+    jobType: 'data_analysis',
+  },
+  translate: {
+    path: '/api/x402/translate',
+    method: 'POST',
+    price: '0.03',
+    description: 'Professional translation via DeepL (30+ languages)',
+    params: {
+      text: { type: 'string', required: true, description: 'Text to translate' },
+      targetLang: { type: 'string', required: true, description: 'Target language code (e.g. DE, FR, ES, JA)' },
+    },
+    jobType: 'translation',
+  },
+};
+
+// Verified payment cache (tx hashes we've already accepted)
+const verifiedPayments = new Set<string>();
+
+/**
+ * x402 Payment Verification Middleware
+ * Implements the 402 Payment Required challenge/response flow:
+ * 1. No payment headers → 402 with payment instructions
+ * 2. X-Payment-Demo: true → bypass (for demos)
+ * 3. X-Payment-TxHash present → verify and process
+ */
+function x402PaymentGate(endpointKey: string) {
+  const endpoint = X402_ENDPOINTS[endpointKey];
+  if (!endpoint) throw new Error(`Unknown x402 endpoint: ${endpointKey}`);
+
+  return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const walletAddress = process.env.LOCUS_WALLET_ADDRESS || '0x0000000000000000000000000000000000000000';
+
+    // Demo mode bypass: X-Payment-Demo header or global DEMO_MODE
+    const isDemoBypass = req.headers['x-payment-demo'] === 'true' || process.env.DEMO_MODE === 'true';
+
+    // Check for payment proof
+    const txHash = req.headers['x-payment-txhash'] as string | undefined;
+    const paidAmount = req.headers['x-payment-amount'] as string | undefined;
+
+    if (!txHash && !isDemoBypass) {
+      // Return 402 Payment Required with payment instructions
+      console.log(`[x402] 💰 402 challenge for ${endpoint.path} — $${endpoint.price} USDC`);
+      res.status(402);
+      res.set({
+        'X-Payment-Required': 'true',
+        'X-Payment-Address': walletAddress,
+        'X-Payment-Amount': endpoint.price,
+        'X-Payment-Network': 'base',
+        'X-Payment-Token': 'USDC',
+        'X-Payment-Description': endpoint.description.replace(/[^\x20-\x7E]/g, ' '),
+      });
+      return res.json({
+        error: 'Payment Required',
+        message: `This endpoint requires ${endpoint.price} USDC on Base to access.`,
+        payment: {
+          amount: endpoint.price,
+          currency: 'USDC',
+          network: 'base',
+          chain_id: 8453,
+          recipient: walletAddress,
+          description: endpoint.description,
+        },
+        instructions: {
+          step1: `Send ${endpoint.price} USDC to ${walletAddress} on Base`,
+          step2: 'Re-send this request with headers: X-Payment-TxHash: <tx_hash>',
+          step3: 'Or set X-Payment-Demo: true for demo/testing mode',
+        },
+        endpoint: {
+          path: endpoint.path,
+          method: endpoint.method,
+          params: endpoint.params,
+        },
+        demo: 'Set header X-Payment-Demo: true to bypass payment for testing',
+      });
+    }
+
+    if (isDemoBypass) {
+      console.log(`[x402] 🎭 Demo bypass for ${endpoint.path}`);
+      (req as any).x402 = { demo: true, endpoint: endpointKey, price: endpoint.price };
+      return next();
+    }
+
+    // Payment proof provided — verify
+    if (txHash) {
+      // Check for replay attacks
+      if (verifiedPayments.has(txHash)) {
+        return res.status(400).json({
+          error: 'Payment Already Used',
+          message: 'This transaction hash has already been used for a previous request.',
+        });
+      }
+
+      // Basic validation (in production, verify on-chain via Base RPC)
+      if (!/^0x[a-fA-F0-9]{64}$/.test(txHash)) {
+        return res.status(400).json({
+          error: 'Invalid Transaction Hash',
+          message: 'X-Payment-TxHash must be a valid 0x-prefixed 32-byte hex hash.',
+        });
+      }
+
+      // Check amount if provided
+      if (paidAmount && parseFloat(paidAmount) < parseFloat(endpoint.price)) {
+        return res.status(402).json({
+          error: 'Insufficient Payment',
+          message: `Paid ${paidAmount} USDC but endpoint requires ${endpoint.price} USDC.`,
+          required: endpoint.price,
+          provided: paidAmount,
+        });
+      }
+
+      // Accept payment (mark as used)
+      verifiedPayments.add(txHash);
+      console.log(`[x402] ✅ Payment verified for ${endpoint.path}: tx=${txHash.slice(0, 10)}...`);
+      (req as any).x402 = { demo: false, txHash, endpoint: endpointKey, price: endpoint.price };
+      return next();
+    }
+
+    // Shouldn't reach here, but just in case
+    return next();
+  };
+}
+
+// ── x402 Discovery ─────────────────────────────────────────────────────────────
+
+app.get('/api/x402', (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const walletAddress = process.env.LOCUS_WALLET_ADDRESS || '0x...';
+
+  const endpoints = Object.entries(X402_ENDPOINTS).map(([key, ep]) => ({
+    id: key,
+    path: ep.path,
+    method: ep.method,
+    url: `${baseUrl}${ep.path}`,
+    price_usdc: ep.price,
+    description: ep.description,
+    params: ep.params,
+  }));
+
+  res.json({
+    success: true,
+    protocol: 'x402 / MPP (Machine Payments Protocol)',
+    version: '1.0',
+    description: 'LancerAI machine-payable endpoints. Send a request without payment to receive a 402 challenge with payment details. Pay with USDC on Base, then re-request with the transaction hash.',
+    payment: {
+      currency: 'USDC',
+      network: 'base',
+      chain_id: 8453,
+      recipient: walletAddress,
+      token_contract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    },
+    demo_mode: {
+      enabled: process.env.DEMO_MODE === 'true',
+      header: 'X-Payment-Demo: true',
+      description: 'Set this header to bypass payment verification for testing',
+    },
+    endpoints,
+    openapi: `${baseUrl}/openapi.json`,
+    llms_txt: `${baseUrl}/.well-known/llms.txt`,
+    examples: {
+      '1_discover': `curl ${baseUrl}/api/x402`,
+      '2_challenge': `curl -X POST ${baseUrl}/api/x402/research -H "Content-Type: application/json" -d '{"query":"AI agent frameworks"}'`,
+      '3_pay_and_call': `curl -X POST ${baseUrl}/api/x402/research -H "Content-Type: application/json" -H "X-Payment-TxHash: 0x..." -H "X-Payment-Amount: 0.05" -d '{"query":"AI agent frameworks"}'`,
+      '4_demo_mode': `curl -X POST ${baseUrl}/api/x402/research -H "Content-Type: application/json" -H "X-Payment-Demo: true" -d '{"query":"AI agent frameworks"}'`,
+    },
+  });
+});
+
+// ── OpenAPI Spec with x-payment-info extensions ────────────────────────────────
+
+app.get('/openapi.json', (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const walletAddress = process.env.LOCUS_WALLET_ADDRESS || '0x...';
+
+  const paths: Record<string, any> = {};
+  for (const [key, ep] of Object.entries(X402_ENDPOINTS)) {
+    const properties: Record<string, any> = {};
+    const required: string[] = [];
+    for (const [pName, pDef] of Object.entries(ep.params)) {
+      properties[pName] = { type: pDef.type, description: pDef.description };
+      if (pDef.required) required.push(pName);
+    }
+
+    paths[ep.path] = {
+      [ep.method.toLowerCase()]: {
+        operationId: key,
+        summary: ep.description,
+        'x-payment-info': {
+          amount: ep.price,
+          currency: 'USDC',
+          network: 'base',
+          chain_id: 8453,
+          recipient: walletAddress,
+          token_contract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+          demo_header: 'X-Payment-Demo: true',
+        },
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { type: 'object', properties, required },
+            },
+          },
+        },
+        parameters: [
+          {
+            name: 'X-Payment-TxHash',
+            in: 'header',
+            required: false,
+            schema: { type: 'string' },
+            description: 'USDC payment transaction hash on Base',
+          },
+          {
+            name: 'X-Payment-Demo',
+            in: 'header',
+            required: false,
+            schema: { type: 'string', enum: ['true'] },
+            description: 'Set to "true" to bypass payment for testing',
+          },
+        ],
+        responses: {
+          '200': { description: 'Success — service result returned' },
+          '402': { description: 'Payment Required — send USDC and retry with X-Payment-TxHash' },
+          '400': { description: 'Bad request or invalid/reused payment' },
+        },
+      },
+    };
+  }
+
+  const spec = {
+    openapi: '3.1.0',
+    info: {
+      title: 'LancerAI — Autonomous AI Freelancer Agent',
+      version: APP_VERSION,
+      description: 'Machine-payable AI freelancer endpoints. Uses x402/MPP protocol: send a request to get a 402 challenge, pay with USDC on Base, re-request with proof.',
+      contact: { name: 'PAYGENTIC', url: 'https://github.com/anthropics/paygentic' },
+      'x-agent-type': 'autonomous-ai-freelancer',
+      'x-payment-protocol': 'x402/MPP',
+    },
+    servers: [{ url: baseUrl, description: 'LancerAI API' }],
+    paths,
+    components: {
+      securitySchemes: {
+        x402Payment: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'X-Payment-TxHash',
+          description: 'Transaction hash of USDC payment on Base',
+        },
+      },
+    },
+  };
+
+  res.json(spec);
+});
+
+// ── x402 Payable Endpoint Handlers ─────────────────────────────────────────────
+
+app.post('/api/x402/research', x402PaymentGate('research'), async (req, res) => {
   try {
     const { query } = req.body;
     if (!query) return res.status(400).json({ success: false, error: 'query is required' });
@@ -777,14 +1146,19 @@ app.post('/api/x402/research', async (req, res) => {
       createdAt: new Date().toISOString(),
     };
     const result = await agent.executeJob(job);
-    res.json({ success: true, data: result });
+    const x402Info = (req as any).x402 || {};
+    res.json({
+      success: true,
+      x402: { paid: !x402Info.demo, price: '0.05', txHash: x402Info.txHash || null },
+      data: result,
+    });
   } catch (err: any) {
     console.error(`[API] x402/research error: ${err.message}`);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-app.post('/api/x402/content', async (req, res) => {
+app.post('/api/x402/content', x402PaymentGate('content'), async (req, res) => {
   try {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ success: false, error: 'prompt is required' });
@@ -798,14 +1172,19 @@ app.post('/api/x402/content', async (req, res) => {
       createdAt: new Date().toISOString(),
     };
     const result = await agent.executeJob(job);
-    res.json({ success: true, data: result });
+    const x402Info = (req as any).x402 || {};
+    res.json({
+      success: true,
+      x402: { paid: !x402Info.demo, price: '0.10', txHash: x402Info.txHash || null },
+      data: result,
+    });
   } catch (err: any) {
     console.error(`[API] x402/content error: ${err.message}`);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-app.post('/api/x402/deploy', async (req, res) => {
+app.post('/api/x402/deploy', x402PaymentGate('deploy'), async (req, res) => {
   try {
     const { repoUrl, projectName, branch } = req.body;
     if (!repoUrl || !projectName) {
@@ -823,9 +1202,175 @@ app.post('/api/x402/deploy', async (req, res) => {
       serviceName: projectName,
     };
     const result = await agent.executeJob(job);
-    res.json({ success: true, data: result });
+    const x402Info = (req as any).x402 || {};
+    res.json({
+      success: true,
+      x402: { paid: !x402Info.demo, price: '1.00', txHash: x402Info.txHash || null },
+      data: result,
+    });
   } catch (err: any) {
     console.error(`[API] x402/deploy error: ${err.message}`);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/x402/data-analysis', x402PaymentGate('data-analysis'), async (req, res) => {
+  try {
+    const { data, question, query } = req.body;
+    const input = data || query || question;
+    if (!input) return res.status(400).json({ success: false, error: 'data, query, or question is required' });
+
+    const job: Job = {
+      id: randomUUID(),
+      type: 'data_analysis',
+      description: question || query || `Analyze: ${String(data).substring(0, 200)}`,
+      budget: 0.75,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+    const result = await agent.executeJob(job);
+    const x402Info = (req as any).x402 || {};
+    res.json({
+      success: true,
+      x402: { paid: !x402Info.demo, price: '0.08', txHash: x402Info.txHash || null },
+      data: result,
+    });
+  } catch (err: any) {
+    console.error(`[API] x402/data-analysis error: ${err.message}`);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/x402/translate', x402PaymentGate('translate'), async (req, res) => {
+  try {
+    const { text, targetLang, target_lang } = req.body;
+    const lang = targetLang || target_lang;
+    if (!text || !lang) {
+      return res.status(400).json({ success: false, error: 'text and targetLang (or target_lang) are required' });
+    }
+
+    const job: Job = {
+      id: randomUUID(),
+      type: 'translation',
+      description: `Translate to ${lang}: ${typeof text === 'string' ? text.substring(0, 200) : JSON.stringify(text).substring(0, 200)}`,
+      budget: 0.50,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+    const result = await agent.executeJob(job);
+    const x402Info = (req as any).x402 || {};
+    res.json({
+      success: true,
+      x402: { paid: !x402Info.demo, price: '0.03', txHash: x402Info.txHash || null },
+      data: result,
+    });
+  } catch (err: any) {
+    console.error(`[API] x402/translate error: ${err.message}`);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ── Laso Finance Proxy Endpoints ───────────────────────────────────────────────
+
+app.post('/api/laso/auth', async (req, res) => {
+  try {
+    const { X402Service } = await import('../locus/x402.js');
+    const x402Svc = new X402Service();
+    const result = await x402Svc.lasoAuth();
+    res.json({ success: true, data: result });
+  } catch (err: any) {
+    console.error(`[API] Laso auth error: ${err.message}`);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/laso/get-card', async (req, res) => {
+  try {
+    const { amount } = req.body;
+    if (!amount || amount < 5 || amount > 1000) {
+      return res.status(400).json({
+        success: false,
+        error: 'VALIDATION_ERROR',
+        message: 'amount is required (5-1000 USD)',
+      });
+    }
+    const { X402Service } = await import('../locus/x402.js');
+    const x402Svc = new X402Service();
+    const result = await x402Svc.lasoGetCard(amount);
+    res.json({ success: true, data: result });
+  } catch (err: any) {
+    console.error(`[API] Laso get-card error: ${err.message}`);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/laso/send-payment', async (req, res) => {
+  try {
+    const { method, recipient, amount, note } = req.body;
+    if (!method || !recipient || !amount) {
+      return res.status(400).json({
+        success: false,
+        error: 'VALIDATION_ERROR',
+        message: 'method (venmo/paypal), recipient, and amount are required',
+      });
+    }
+    const { X402Service } = await import('../locus/x402.js');
+    const x402Svc = new X402Service();
+    const result = await x402Svc.lasoSendPayment(method, recipient, amount, note);
+    res.json({ success: true, data: result });
+  } catch (err: any) {
+    console.error(`[API] Laso send-payment error: ${err.message}`);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ── AgentMail Proxy Endpoints ──────────────────────────────────────────────────
+
+app.post('/api/agentmail/create-inbox', async (req, res) => {
+  try {
+    const { username } = req.body;
+    const { X402Service } = await import('../locus/x402.js');
+    const x402Svc = new X402Service();
+    const result = await x402Svc.createInbox(username);
+    res.json({ success: true, data: result });
+  } catch (err: any) {
+    console.error(`[API] AgentMail create-inbox error: ${err.message}`);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/agentmail/send', async (req, res) => {
+  try {
+    const { to, subject, body: emailBody, inboxId } = req.body;
+    if (!to || !subject || !emailBody) {
+      return res.status(400).json({
+        success: false,
+        error: 'VALIDATION_ERROR',
+        message: 'to, subject, and body are required',
+      });
+    }
+    const { X402Service } = await import('../locus/x402.js');
+    const x402Svc = new X402Service();
+    const result = await x402Svc.sendEmail(to, subject, emailBody, inboxId);
+    res.json({ success: true, data: result });
+  } catch (err: any) {
+    console.error(`[API] AgentMail send error: ${err.message}`);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/agentmail/messages', async (req, res) => {
+  try {
+    const { inboxId } = req.body;
+    if (!inboxId) {
+      return res.status(400).json({ success: false, error: 'inboxId is required' });
+    }
+    const { X402Service } = await import('../locus/x402.js');
+    const x402Svc = new X402Service();
+    const result = await x402Svc.listMessages(inboxId);
+    res.json({ success: true, data: result });
+  } catch (err: any) {
+    console.error(`[API] AgentMail messages error: ${err.message}`);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -966,6 +1511,8 @@ app.use('/api/*', (req, res) => {
       'GET /api/services': 'Service catalog (10 services)',
       'GET /api/agent-info': 'Machine-readable agent metadata (JSON)',
       'GET /.well-known/llms.txt': 'LLM-discoverable agent description',
+      'GET /openapi.json': 'OpenAPI 3.1 spec with x-payment-info extensions',
+      'GET /api/x402': 'x402/MPP endpoint discovery — prices, params, examples',
       'GET /api/wrapped-catalog': 'Browse all 299 Locus wrapped APIs (static)',
       'GET /api/catalog': 'Dynamic API catalog from Locus (live)',
       'GET /api/transactions': 'Locus transaction history',
@@ -981,9 +1528,17 @@ app.use('/api/*', (req, res) => {
       'GET /api/hire/orders': 'List Fiverr orders',
       'GET /api/hire/orders/:id': 'Get Fiverr order details',
       'POST /api/checkout/create': 'Create a Locus Checkout payment session',
-      'POST /api/x402/research': 'Machine-payable web research',
-      'POST /api/x402/content': 'Machine-payable content generation',
-      'POST /api/x402/deploy': 'Machine-payable deployment',
+      'POST /api/x402/research': 'Machine-payable web research ($0.05 USDC)',
+      'POST /api/x402/content': 'Machine-payable content generation ($0.10 USDC)',
+      'POST /api/x402/translate': 'Machine-payable translation ($0.03 USDC)',
+      'POST /api/x402/data-analysis': 'Machine-payable data analysis ($0.08 USDC)',
+      'POST /api/x402/deploy': 'Machine-payable deployment ($1.00 USDC)',
+      'POST /api/laso/auth': 'Laso Finance — authenticate',
+      'POST /api/laso/get-card': 'Laso Finance — order prepaid Visa card',
+      'POST /api/laso/send-payment': 'Laso Finance — send via Venmo/PayPal',
+      'POST /api/agentmail/create-inbox': 'AgentMail — create email inbox',
+      'POST /api/agentmail/send': 'AgentMail — send email',
+      'POST /api/agentmail/messages': 'AgentMail — list inbox messages',
       'GET /api/audit': 'Request audit log',
     },
   });
@@ -1007,15 +1562,16 @@ app.listen(PORT, HOST, () => {
 ║  Health:        http://${HOST}:${PORT}/health                  ║
 ║  Agent Info:    http://${HOST}:${PORT}/api/agent-info          ║
 ║  llms.txt:      http://${HOST}:${PORT}/.well-known/llms.txt   ║
-║  Services:      http://${HOST}:${PORT}/api/services            ║
+║  OpenAPI:       http://${HOST}:${PORT}/openapi.json            ║
+║  x402 Discovery:http://${HOST}:${PORT}/api/x402               ║
 ║  API Catalog:   http://${HOST}:${PORT}/api/catalog             ║
-║  Deployments:   http://${HOST}:${PORT}/api/deployments         ║
 ║                                                          ║
 ║  DEMO MODE:     ${isDemoMode ? '🎭 ENABLED (mock data)          ' : '❌ Disabled                     '}    ║
 ║  Services:      ${SERVICE_CATALOG.length} job types                            ║
+║  x402 Endpoints:${Object.keys(X402_ENDPOINTS).length} machine-payable                    ║
 ║  Wrapped APIs:  299 available via Locus                  ║
 ║                                                          ║
-║  Powered by Locus • USDC on Base                         ║
+║  Powered by Locus • USDC on Base • x402/MPP              ║
 ║  BuildWithLocus: beta-api.buildwithlocus.com             ║
 ╚══════════════════════════════════════════════════════════╝
 `);

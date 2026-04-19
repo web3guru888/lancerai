@@ -382,12 +382,40 @@ export class LancerAgent {
 
   /** Translation: Translate text */
   private async doTranslation(request: string): Promise<any> {
+    // Try to detect target language from request like "translate X to Spanish"
+    const langMap: Record<string, string> = {
+      spanish: 'ES', french: 'FR', german: 'DE', italian: 'IT', portuguese: 'PT',
+      dutch: 'NL', polish: 'PL', russian: 'RU', japanese: 'JA', chinese: 'ZH',
+      korean: 'KO', arabic: 'AR', turkish: 'TR', swedish: 'SV', danish: 'DA',
+      finnish: 'FI', greek: 'EL', czech: 'CS', romanian: 'RO', hungarian: 'HU',
+      english: 'EN',
+    };
+    const lower = request.toLowerCase();
+    let targetLang = 'EN';
+    // Extract text to translate (before "to <language>")
+    let textToTranslate = request;
+    for (const [lang, code] of Object.entries(langMap)) {
+      if (lower.includes(`to ${lang}`) || lower.includes(`into ${lang}`)) {
+        targetLang = code;
+        // Try to extract just the text, not the instruction
+        const patterns = [
+          /translate\s+['""]?(.+?)['""]?\s+(?:to|into)\s+/i,
+          /['""](.+?)['""].*?(?:to|into)\s+/i,
+        ];
+        for (const p of patterns) {
+          const m = request.match(p);
+          if (m && m[1]) { textToTranslate = m[1].trim(); break; }
+        }
+        break;
+      }
+    }
     const result = await this.wrapped.call('deepl', 'translate', {
-      text: [request],
-      target_lang: 'EN',
+      text: [textToTranslate],
+      target_lang: targetLang,
     });
     return {
       request,
+      targetLanguage: targetLang,
       translation: result.data,
       _mock: result._mock || false,
     };
