@@ -14,13 +14,27 @@ import { LancerAgent, Job, JobType, SERVICE_CATALOG } from '../agent/agent.js';
 import { WalletService, DeployService, CheckoutService, WrappedApiService } from '../locus/index.js';
 import { randomUUID } from 'crypto';
 
-const APP_VERSION = '0.5.0';
+const APP_VERSION = '0.5.1';
 const startTime = Date.now();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+
+// Trust reverse proxy (BWL / load balancer) so req.protocol reads X-Forwarded-Proto
+app.set('trust proxy', true);
+
+/** Build the public base URL from a request. Defaults to https in production. */
+function getBaseUrl(req: express.Request): string {
+  const host = req.get('host') || 'localhost:8080';
+  // In production (BWL), always use https; locally, use whatever req.protocol says
+  const proto = (host.includes('buildwithlocus.com') || host.includes('locus.com'))
+    ? 'https'
+    : req.protocol;
+  return `${proto}://${host}`;
+}
+
 app.use(express.json());
 
 // ==========================================
@@ -158,7 +172,7 @@ app.get('/api/health', (req, res) => {
 // ==========================================
 
 app.get('/.well-known/llms.txt', (req, res) => {
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const baseUrl = getBaseUrl(req);
   const llmsTxt = `# LancerAI — Autonomous AI Freelancer Agent
 # ${baseUrl}
 # Powered by Locus • USDC on Base
@@ -271,7 +285,7 @@ POST ${baseUrl}/api/agentmail/messages      — List inbox messages
 // ==========================================
 
 app.get('/api/agent-info', (req, res) => {
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const baseUrl = getBaseUrl(req);
   res.json({
     success: true,
     data: {
@@ -1000,7 +1014,7 @@ function x402PaymentGate(endpointKey: string) {
 // ── x402 Discovery ─────────────────────────────────────────────────────────────
 
 app.get('/api/x402', (req, res) => {
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const baseUrl = getBaseUrl(req);
   const walletAddress = process.env.LOCUS_WALLET_ADDRESS || '0x...';
 
   const endpoints = Object.entries(X402_ENDPOINTS).map(([key, ep]) => ({
@@ -1045,7 +1059,7 @@ app.get('/api/x402', (req, res) => {
 // ── OpenAPI Spec with x-payment-info extensions ────────────────────────────────
 
 app.get('/openapi.json', (req, res) => {
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const baseUrl = getBaseUrl(req);
   const walletAddress = process.env.LOCUS_WALLET_ADDRESS || '0x...';
 
   const paths: Record<string, any> = {};
@@ -1109,7 +1123,7 @@ app.get('/openapi.json', (req, res) => {
       title: 'LancerAI — Autonomous AI Freelancer Agent',
       version: APP_VERSION,
       description: 'Machine-payable AI freelancer endpoints. Uses x402/MPP protocol: send a request to get a 402 challenge, pay with USDC on Base, re-request with proof.',
-      contact: { name: 'PAYGENTIC', url: 'https://github.com/anthropics/paygentic' },
+      contact: { name: 'PAYGENTIC', url: 'https://github.com/web3guru888/lancerai' },
       'x-agent-type': 'autonomous-ai-freelancer',
       'x-payment-protocol': 'x402/MPP',
     },

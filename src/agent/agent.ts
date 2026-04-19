@@ -49,7 +49,7 @@ export interface AgentConfig {
 const DEFAULT_CONFIG: AgentConfig = {
   name: 'LancerAI',
   description: 'Autonomous AI freelancer agent — deploys apps, researches the web, creates content, generates images, executes code, and more. Powered by Locus on Base.',
-  version: '0.4.0',
+  version: '0.5.1',
   minProfitMargin: 0.2, // 20% minimum profit
   maxBudgetPerJob: 5.0,  // $5 max spend per job
 };

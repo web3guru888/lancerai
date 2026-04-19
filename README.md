@@ -187,7 +187,7 @@ Example:  Web Research job
 
 ```bash
 # Clone
-git clone https://github.com/paygentic/lancerai.git
+git clone https://github.com/web3guru888/lancerai.git
 cd lancerai
 
 # Install
@@ -217,7 +217,7 @@ docker run -p 8080:8080 --env-file .env lancerai
 # LancerAI can deploy itself — the ultimate meta-demo
 curl -X POST http://localhost:8080/api/deploy \
   -H "Content-Type: application/json" \
-  -d '{"repoUrl": "https://github.com/paygentic/lancerai"}'
+  -d '{"repoUrl": "https://github.com/web3guru888/lancerai"}'
 ```
 
 ---
