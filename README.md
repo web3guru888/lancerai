@@ -61,7 +61,9 @@ LancerAI is a **fully autonomous AI agent that operates as a self-sustaining fre
 6. **🤖 Agent-to-agent** — Another agent calls LancerAI's x402 endpoint, pays per request
 7. **📈 Review profit** — Agent earned USDC, paid costs, kept margin — fully autonomous P&L
 
-**Dashboard:** Interactive glassmorphism UI at `http://localhost:8080` — live wallet, job queue, service catalog, integration status
+**Live Dashboard:** `https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com` — deployed on BuildWithLocus. Interactive glassmorphism UI with live wallet, job queue, service catalog, and integration status.
+
+**Agent Discovery:** `https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com/.well-known/llms.txt`
 
 ---
 
@@ -142,7 +144,7 @@ LancerAI is a **fully autonomous AI agent that operates as a self-sustaining fre
 │   └────────────┘   └────────────┘   └────────────┘            │
 │                                                                │
 │   ┌────────────────────────────────────────────────┐           │
-│   │ 📡 Express API Server (21+ endpoints)          │           │
+│   │ 📡 Express API Server (26+ endpoints)          │           │
 │   └────────────────────────────────────────────────┘           │
 │                                                                │
 │   ┌────────────────────────────────────────────────┐           │
@@ -271,7 +273,7 @@ curl -X POST http://localhost:8080/api/deploy \
 |-------|------------|
 | **Language** | TypeScript (ES2022, strict mode) |
 | **Runtime** | Node.js 22 |
-| **API** | Express with 21+ endpoints |
+| **API** | Express with 26+ endpoints |
 | **Payments** | Locus — USDC on Base (ERC-4337 smart wallets, gasless) |
 | **AI** | Gemini via Wrapped APIs |
 | **Search** | Brave Search via Wrapped APIs |
@@ -293,7 +295,7 @@ lancerai/
 │   ├── agent/
 │   │   └── agent.ts              # Job engine — 10 job types, auto-escalation
 │   ├── api/
-│   │   ├── server.ts             # Express server (21+ endpoints, port 8080)
+│   │   ├── server.ts             # Express server (26+ endpoints, port 8080)
 │   │   └── public/index.html     # Dashboard (Tailwind, glassmorphism, 1200+ lines)
 │   └── locus/                    # Locus SDK — 8 modules
 │       ├── client.ts             # HTTP client with auth, retries, error handling
