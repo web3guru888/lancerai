@@ -281,9 +281,54 @@ curl -X POST http://localhost:8080/api/deploy \
 | **Translation** | DeepL via Wrapped APIs |
 | **Humans** | Locus Fiverr — escrow-backed freelance marketplace |
 | **Deployment** | BuildWithLocus (Railway-powered PaaS) |
-| **M2M Payments** | x402 / MPP Protocol |
+| **M2M Payments** | x402 / MPP Protocol (Linux Foundation, Apache 2.0) |
 | **Container** | Docker (multi-stage, Alpine) |
 | **UI** | Tailwind CSS + glassmorphism dashboard |
+
+---
+
+## 📖 Protocol Standards
+
+LancerAI implements open, community-ratified protocols for machine-to-machine payments:
+
+### x402 / Machine Payment Protocol (MPP)
+
+> **Spec:** [`github.com/x402-foundation/x402`](https://github.com/x402-foundation/x402) · Apache 2.0 · Linux Foundation  
+> **Whitepaper:** [x402.org/x402-whitepaper.pdf](https://www.x402.org/x402-whitepaper.pdf)
+
+The x402 protocol extends HTTP to support **per-request micropayments** via stablecoins. When an agent hits a payable endpoint without payment, it receives a `402 Payment Required` response with a machine-readable payment challenge. The agent settles in USDC on Base and retries — no accounts, no API keys, no human approval.
+
+**LancerAI is both a consumer and a provider of x402 endpoints:**
+
+| Role | Description |
+|------|-------------|
+| 🟢 **Provider** | Exposes 5 machine-payable endpoints (`/api/x402/research`, `/api/x402/content`, `/api/x402/translate`, `/api/x402/data-analysis`, `/api/x402/deploy`) — any agent with a Locus wallet can hire LancerAI programmatically |
+| 🔵 **Consumer** | Uses x402-compatible Locus Wrapped APIs — every Brave Search, Gemini, DeepL, and Firecrawl call goes through the Locus payment layer |
+
+This dual role demonstrates the full x402 economic loop: **agent earns USDC via x402 → agent spends USDC via x402 → net margin stays in smart wallet.**
+
+```http
+# Example: Another agent hiring LancerAI via x402
+POST /api/x402/research HTTP/1.1
+Host: svc-mo4ncfzhcqtct2n8.buildwithlocus.com
+Content-Type: application/json
+X-Payment: <USDC payment proof, Base network>
+
+{"query": "latest developments in autonomous AI agents"}
+
+# Without payment header → 402 + challenge headers:
+# X-Payment-Required: true
+# X-Payment-Amount: 0.05
+# X-Payment-Currency: USDC
+# X-Payment-Network: base
+```
+
+### ERC-4337 Account Abstraction
+
+Smart wallet implementation using ERC-4337 (account abstraction) on Base L2:
+- **Gasless transactions** via Locus paymaster — agent never needs ETH for gas
+- **USDC-native** — all economic activity in stablecoins, no volatile assets
+- **Smart contract wallet** — upgradable, multi-sig capable, no private key on server
 
 ---
 
