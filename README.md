@@ -7,14 +7,15 @@
   <img src="https://img.shields.io/badge/ERC--4337-7C3AED?logoColor=white" alt="ERC-4337" />
   <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white" alt="Docker" />
   <img src="https://img.shields.io/badge/x402%20%2F%20MPP-000000?logoColor=white" alt="x402" />
+  <img src="https://img.shields.io/badge/BuildWithLocus-Deployed-brightgreen" alt="Deployed" />
 </p>
 
 <h1 align="center">🤖 LancerAI</h1>
 
-<h3 align="center">The Autonomous AI Freelancer</h3>
+<h3 align="center">The Autonomous AI Freelancer — Powered by Locus</h3>
 
 <p align="center">
-  <strong>An AI agent that runs a complete freelancing business — gets hired, does the work, hires humans when it can't, deploys results, and earns USDC. Fully autonomous. Zero human intervention.</strong>
+  <strong>An AI agent that runs a complete freelancing business on-chain — gets hired, does the work, hires humans when it can't, deploys services, and earns USDC. Fully autonomous. Zero human intervention.</strong>
 </p>
 
 <p align="center">
@@ -22,16 +23,32 @@
 </p>
 
 <p align="center">
-  <a href="#-demo">Demo</a> · <a href="#-how-it-works">How It Works</a> · <a href="#-services">Services</a> · <a href="#-architecture">Architecture</a> · <a href="#-quick-start">Quick Start</a>
+  <a href="https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com">🌐 Live Demo</a> ·
+  <a href="#-demo-video">🎬 Demo Video</a> ·
+  <a href="#-how-it-works">🔄 How It Works</a> ·
+  <a href="#-services">🛒 Services</a> ·
+  <a href="#-x402--machine-payment-protocol">🤖 x402/MPP</a> ·
+  <a href="#-api-reference">📡 API</a> ·
+  <a href="#-quick-start">🚀 Quick Start</a>
 </p>
 
 ---
 
 ## 🎯 What Is LancerAI?
 
-LancerAI is a **fully autonomous AI agent that operates as a self-sustaining freelancer** on Base. It accepts jobs, executes work using 299+ APIs, escalates to human freelancers when AI hits its limits, manages its own USDC wallet, deploys services, and exposes machine-payable endpoints for agent-to-agent commerce.
+LancerAI is a **fully autonomous AI agent that operates as a self-sustaining freelancer** on Base. It accepts jobs via USDC payments, executes work using 299+ wrapped APIs, escalates to human freelancers when AI hits its limits, manages its own smart wallet, deploys services via BuildWithLocus, and exposes machine-payable endpoints for agent-to-agent commerce via the [x402 protocol](https://www.x402.org/x402-whitepaper.pdf).
 
 **It's not a prototype. It's a working product.** Every feature integrates with live Locus APIs on Base mainnet.
+
+### ✨ Live Right Now
+
+| What | Link |
+|------|------|
+| 🌐 **Live Dashboard** | [`svc-mo4ncfzhcqtct2n8.buildwithlocus.com`](https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com) |
+| 🤖 **Agent Discovery** | [`/.well-known/llms.txt`](https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com/.well-known/llms.txt) |
+| 📋 **OpenAPI Spec** | [`/openapi.json`](https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com/openapi.json) |
+| 💰 **x402 Discovery** | [`/api/x402`](https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com/api/x402) |
+| 💼 **Wallet** | [`0xf9f4a7b422bded284bca28e0154ccbc029de932a`](https://basescan.org/address/0xf9f4a7b422bded284bca28e0154ccbc029de932a) |
 
 ---
 
@@ -39,31 +56,44 @@ LancerAI is a **fully autonomous AI agent that operates as a self-sustaining fre
 
 | | What Makes It Different |
 |---|---|
-| 🏦 **Full Financial Autonomy** | Owns a smart wallet (ERC-4337), earns USDC, pays for tools, keeps profit — no human approval |
+| 🏦 **Full Financial Autonomy** | Owns an ERC-4337 smart wallet, earns USDC, pays for tools, keeps profit — no human approval needed |
 | 🔗 **Uses EVERY Locus Product** | Wallet · Checkout · 299+ Wrapped APIs · Fiverr · BuildWithLocus · x402/MPP — the full stack |
 | 🤝 **AI-Human Collaboration** | When the AI can't do it (design, video, physical tasks), it hires a human freelancer via Locus Fiverr with escrow |
 | 🚀 **Self-Deploying** | Can deploy new instances of itself via BuildWithLocus — self-scaling agent network |
 | 🤖 **Machine-Payable APIs** | Exposes x402/MPP endpoints so other AI agents can hire LancerAI programmatically |
 | 🌐 **Crypto-Native** | USDC on Base = instant settlement, global reach, sub-cent fees, no chargebacks |
-| 🧠 **Built BY AI Agents** | This entire project — code, docs, strategy — was built by autonomous AI agents |
+| 🧠 **Built BY AI Agents** | This entire project — code, docs, strategy, demo — was built by autonomous AI agents on the [Taurus platform](https://taurus.sh) |
 
 ---
 
-## 🎬 Demo
+## 🎬 Demo Video
 
-> **What judges will see in the live demo:**
+> **2 minutes 18 seconds** — 24 segments showing the full autonomous lifecycle
 
-1. **💳 Accept a job** — Client pays USDC via Locus Checkout → funds land in agent's wallet
-2. **⚡ Execute the work** — Agent calls Brave Search + Firecrawl + Gemini to research and synthesize
-3. **📊 Check the wallet** — Balance updates in real-time, transaction history visible
-4. **🤝 Escalate to human** — Agent detects it can't do graphic design → hires a Fiverr freelancer → delivers result
-5. **🚀 Deploy a service** — Agent deploys a microservice via BuildWithLocus
-6. **🤖 Agent-to-agent** — Another agent calls LancerAI's x402 endpoint, pays per request
-7. **📈 Review profit** — Agent earned USDC, paid costs, kept margin — fully autonomous P&L
+https://github.com/web3guru888/lancerai/raw/main/demo/lancerai-demo.mp4
 
-**Live Dashboard:** `https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com` — deployed on BuildWithLocus. Interactive glassmorphism UI with live wallet, job queue, service catalog, and integration status.
+<details>
+<summary>📹 What's in the demo</summary>
 
-**Agent Discovery:** `https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com/.well-known/llms.txt`
+1. **Hero overview** — LancerAI dashboard on BuildWithLocus
+2. **How it works** — Client pays → Agent works → Agent delivers → Profit
+3. **Live stats** — 10 services, 299+ APIs, real wallet with USDC
+4. **Service catalog** — Browse all 10 service types with pricing
+5. **Try-it interface** — Submit a job through the interactive dashboard
+6. **x402 protocol** — Machine-payable endpoints with 402 challenge flow
+7. **x402 JSON** — Actual API response showing payment discovery
+8. **Locus integration** — All 6 products: Wallet, Checkout, Wrapped APIs, Fiverr, BWL, x402
+9. **Wallet management** — ERC-4337 smart wallet, gasless USDC transactions
+10. **Hire a human** — AI escalates to Fiverr when it can't do the job
+11. **Architecture** — Full system diagram with all components
+12. **Machine discovery** — `llms.txt` and OpenAPI for agent discoverability
+13. **OpenAPI spec** — Complete API documentation for machine consumption
+14. **Job history** — Real completed jobs with execution metrics
+15. **Closing** — Built by AI agents, for the agent economy
+
+</details>
+
+A [compressed version](demo/lancerai-demo-compressed.mp4) (12 MB) is also available.
 
 ---
 
@@ -105,24 +135,105 @@ LancerAI is a **fully autonomous AI agent that operates as a self-sustaining fre
             DeepL, ...)
 ```
 
-**Complete lifecycle in one sentence:** Client pays USDC → LancerAI picks up job → calls Wrapped APIs to do the work → if it can't, hires a human via Fiverr → delivers result → keeps the margin.
+**In one sentence:** Client pays USDC → LancerAI picks up job → calls Wrapped APIs to do the work → if it can't, hires a human via Fiverr → delivers result → keeps the margin → rinse and repeat.
 
 ---
 
-## 🛒 Services (10)
+## 🛒 Services
 
-| Service | Price | What You Get | Powered By |
-|---------|-------|--------------|------------|
-| 🔍 **Web Research** | 0.50 USDC | Deep search, scrape, and synthesize findings | Brave Search + Firecrawl |
-| ✍️ **Content Creation** | 0.50 USDC | Articles, copy, summaries, creative writing | Gemini AI |
-| 📊 **Data Analysis** | 1.00 USDC | Statistical analysis, trend reports, insights | Brave + Gemini |
-| 🌐 **Translation** | 0.25 USDC | 30+ languages, professional quality | DeepL |
-| 🎨 **AI Image Generation** | 1.00 USDC | Photorealistic images, illustrations, art | fal.ai + Stability AI |
-| 💻 **Code Execution** | 0.25 USDC | Run code in 50+ languages, get output instantly | Judge0 |
-| 📈 **Crypto Market Analysis** | 0.75 USDC | Real-time price data, trends, sentiment analysis | CoinGecko + Gemini |
-| 🚀 **Website Deployment** | 2.00 USDC | Deploy any GitHub repo to production | BuildWithLocus |
-| 👤 **Hire a Human** | from 15 USDC | Design, video, tasks AI can't do — with escrow | Locus Fiverr |
-| 🤖 **Custom Task** | varies | Describe what you need — AI figures it out | Gemini AI |
+LancerAI offers **10 service types**, each backed by real Locus Wrapped APIs:
+
+| # | Service | Price (USDC) | What You Get | Powered By |
+|---|---------|-------------|--------------|------------|
+| 1 | 🔍 **Web Research** | 0.50 | Deep search, scrape, and synthesize findings | Brave Search + Firecrawl |
+| 2 | ✍️ **Content Creation** | 0.50 | Articles, copy, summaries, creative writing | Gemini AI |
+| 3 | 📊 **Data Analysis** | 1.00 | Statistical analysis, trend reports, insights | Brave + Gemini |
+| 4 | 🌐 **Translation** | 0.25 | 30+ languages, professional quality | DeepL |
+| 5 | 🎨 **AI Image Generation** | 1.00 | Photorealistic images, illustrations, art | fal.ai + Stability AI |
+| 6 | 💻 **Code Execution** | 0.25 | Run code in 60+ languages, sandboxed | Judge0 |
+| 7 | 📈 **Crypto Market Analysis** | 0.75 | Real-time price data, trends, sentiment | CoinGecko + Gemini |
+| 8 | 🚀 **Website Deployment** | 2.00 | Deploy any GitHub repo to production URL | BuildWithLocus |
+| 9 | 👤 **Hire a Human** | from 15.00 | Design, video, tasks AI can't do — with escrow | Locus Fiverr |
+| 10 | 🤖 **Custom Task** | varies | Describe what you need — AI figures it out | Gemini AI |
+
+---
+
+## 🤖 x402 / Machine Payment Protocol
+
+> **Spec:** [`github.com/x402-foundation/x402`](https://github.com/x402-foundation/x402) · Apache 2.0 · Linux Foundation  
+> **Whitepaper:** [x402.org/x402-whitepaper.pdf](https://www.x402.org/x402-whitepaper.pdf)
+
+The [x402 protocol](https://www.x402.org/x402-whitepaper.pdf) extends HTTP to support **per-request micropayments** via stablecoins. When an agent hits a payable endpoint without payment, it receives a `402 Payment Required` response with a machine-readable payment challenge. The agent settles in USDC on Base and retries — no accounts, no API keys, no human approval.
+
+### LancerAI is both a consumer AND provider of x402
+
+| Role | Description |
+|------|-------------|
+| 🟢 **Provider** | Exposes 5 machine-payable endpoints — any agent with a Locus wallet can hire LancerAI programmatically |
+| 🔵 **Consumer** | Uses x402-compatible Locus Wrapped APIs — every Brave Search, Gemini, DeepL, and Firecrawl call goes through the Locus payment layer |
+
+This dual role demonstrates the **full x402 economic loop**: agent earns USDC via x402 → agent spends USDC via x402 → net margin stays in smart wallet.
+
+### x402 Endpoints
+
+| Endpoint | Price | Description |
+|----------|-------|-------------|
+| `POST /api/x402/research` | 0.05 USDC | AI-powered multi-source web research with citations |
+| `POST /api/x402/content` | 0.10 USDC | AI content generation — articles, copy, summaries |
+| `POST /api/x402/translate` | 0.03 USDC | Professional translation via DeepL (30+ languages) |
+| `POST /api/x402/data-analysis` | 0.08 USDC | Data processing, insights, and analysis |
+| `POST /api/x402/deploy` | 0.50 USDC | Deploy a GitHub repo via BuildWithLocus |
+
+### x402 Flow Example
+
+```http
+# 1. Discovery — find what LancerAI offers
+GET /api/x402
+→ JSON with all endpoints, prices, and params
+
+# 2. Challenge — request without payment
+POST /api/x402/research
+Content-Type: application/json
+{"query": "AI agent frameworks 2026"}
+
+→ 402 Payment Required
+   X-Payment-Required: true
+   X-Payment-Amount: 0.05
+   X-Payment-Currency: USDC
+   X-Payment-Network: base
+   X-Payment-Address: 0xf9f4...932a
+
+# 3. Pay — send USDC on Base to the address
+
+# 4. Retry with proof
+POST /api/x402/research
+Content-Type: application/json
+X-Payment-TxHash: 0xabc123...
+X-Payment-Amount: 0.05
+{"query": "AI agent frameworks 2026"}
+
+→ 200 OK + research results
+```
+
+---
+
+## 💰 Business Model
+
+```
+Revenue per job:    $0.25 – $15.00 USDC (paid via Locus Checkout)
+API cost per job:   $0.05 – $2.00 (Wrapped APIs, pay-per-call)
+Gross margin:       20–70% depending on service type
+
+Example:  Web Research job
+          Revenue:  $0.50  (client pays)
+          Costs:    $0.15  (Brave Search + Firecrawl + Gemini)
+          Profit:   $0.35  (70% margin)
+```
+
+**Three revenue streams:**
+1. **Direct services** — Humans pay per job via Locus Checkout
+2. **Agent-to-agent** — AI agents pay per call via x402/MPP endpoints
+3. **Self-replication** — Deploy new specialized instances via BuildWithLocus, each earns independently
 
 ---
 
@@ -144,11 +255,11 @@ LancerAI is a **fully autonomous AI agent that operates as a self-sustaining fre
 │   └────────────┘   └────────────┘   └────────────┘            │
 │                                                                │
 │   ┌────────────────────────────────────────────────┐           │
-│   │ 📡 Express API Server (26+ endpoints)          │           │
+│   │ 📡 Express API Server (37+ endpoints)          │           │
 │   └────────────────────────────────────────────────┘           │
 │                                                                │
 │   ┌────────────────────────────────────────────────┐           │
-│   │ 🎨 Dashboard (Tailwind + glassmorphism UI)     │           │
+│   │ 🎨 Glassmorphism Dashboard (Tailwind CSS)      │           │
 │   └────────────────────────────────────────────────┘           │
 └────────────────────────────────────────────────────────────────┘
          ↕                ↕                ↕
@@ -161,25 +272,60 @@ LancerAI is a **fully autonomous AI agent that operates as a self-sustaining fre
 
 ---
 
-## 💰 Business Model
+## 📡 API Reference
 
-```
-Revenue per job:    $0.25 – $15.00 USDC (paid via Locus Checkout)
-API cost per job:   $0.05 – $2.00 (Wrapped APIs, pay-per-call)
-Gross margin:       20–70% depending on service type
+### Agent
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/status` | Agent status, wallet balance, job stats |
+| `GET` | `/api/agent-info` | Agent metadata and capabilities |
+| `GET` | `/api/services` | Service catalog with pricing |
+| `GET` | `/api/catalog` | Full wrapped API catalog (299+ APIs) |
+| `GET` | `/api/audit` | Cost audit log for all API calls |
 
-Example:  Web Research job
-          Revenue:  $0.50  (client pays)
-          Costs:    $0.15  (Brave Search + Firecrawl + Gemini)
-          Profit:   $0.35  (70% margin)
-```
+### Jobs
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/jobs` | Submit a new job |
+| `GET` | `/api/jobs` | List all jobs with status |
+| `GET` | `/api/jobs/:id` | Get job details + result |
 
-**Three revenue streams:**
-1. **Direct services** — Humans pay per job via Checkout
-2. **Agent-to-agent** — AI agents pay per call via x402/MPP endpoints
-3. **Self-replication** — Deploy new specialized instances via BuildWithLocus, each earns independently
+### Payments
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/wallet` | Balance + promo credits |
+| `GET` | `/api/transactions` | Transaction history |
+| `POST` | `/api/checkout/create` | Create Locus Checkout session |
 
-**Scaling:** Each new instance costs ~$0.25 to deploy. At $5/day margin, ROI in under 1 hour. The agent can autonomously decide to spawn new instances for high-demand services.
+### Deployment
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/deployments` | List BuildWithLocus deployments |
+| `POST` | `/api/deploy` | Deploy from GitHub repo |
+
+### Hire Humans
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/hire/categories` | Browse Fiverr categories |
+| `POST` | `/api/hire` | Hire a human freelancer |
+| `GET` | `/api/hire/orders` | List hire orders |
+| `GET` | `/api/hire/orders/:id` | Order details + deliverables |
+
+### x402 Machine-Payable
+| Method | Endpoint | Price | Description |
+|--------|----------|-------|-------------|
+| `GET` | `/api/x402` | Free | Discovery — list all payable endpoints |
+| `POST` | `/api/x402/research` | 0.05 USDC | Web research with citations |
+| `POST` | `/api/x402/content` | 0.10 USDC | Content generation |
+| `POST` | `/api/x402/translate` | 0.03 USDC | Translation (30+ languages) |
+| `POST` | `/api/x402/data-analysis` | 0.08 USDC | Data analysis and insights |
+| `POST` | `/api/x402/deploy` | 0.50 USDC | Deploy via BuildWithLocus |
+
+### Machine Discovery
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/.well-known/llms.txt` | LLMs.txt agent discovery (services, pricing, how-to) |
+| `GET` | `/openapi.json` | OpenAPI 3.1 spec for machine consumption |
 
 ---
 
@@ -196,6 +342,7 @@ npm install
 # Configure
 cp .env.example .env
 # Add your LOCUS_API_KEY from https://beta.paywithlocus.com
+# Use code PAYGENTIC for $10 free USDC
 
 # Run
 npm start
@@ -215,55 +362,10 @@ docker run -p 8080:8080 --env-file .env lancerai
 
 ```bash
 # LancerAI can deploy itself — the ultimate meta-demo
-curl -X POST http://localhost:8080/api/deploy \
+curl -X POST https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com/api/deploy \
   -H "Content-Type: application/json" \
   -d '{"repoUrl": "https://github.com/web3guru888/lancerai"}'
 ```
-
----
-
-## 📡 API Reference
-
-### Agent Status
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/status` | Agent status + wallet balance |
-| `GET` | `/api/services` | Service catalog (10 services) |
-| `GET` | `/api/audit` | Cost audit log |
-
-### Jobs
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/jobs` | Submit a job |
-| `GET` | `/api/jobs` | List all jobs |
-| `GET` | `/api/jobs/:id` | Get job details + result |
-
-### Payments
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/wallet` | Balance + transaction history |
-| `POST` | `/api/checkout/create` | Create Locus Checkout session |
-
-### Deploy
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/deployments` | List BuildWithLocus deployments |
-| `POST` | `/api/deploy` | Deploy from GitHub or Docker |
-
-### Hire Humans
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/hire/categories` | Browse Fiverr categories |
-| `POST` | `/api/hire` | Hire a human freelancer |
-| `GET` | `/api/hire/orders` | List hire orders |
-| `GET` | `/api/hire/orders/:id` | Order details + deliverables |
-
-### x402 Machine-Payable
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/x402/research` | Pay-per-call research |
-| `POST` | `/api/x402/content` | Pay-per-call content generation |
-| `POST` | `/api/x402/deploy` | Pay-per-call deployment |
 
 ---
 
@@ -273,62 +375,37 @@ curl -X POST http://localhost:8080/api/deploy \
 |-------|------------|
 | **Language** | TypeScript (ES2022, strict mode) |
 | **Runtime** | Node.js 22 |
-| **API** | Express with 26+ endpoints |
+| **API** | Express with 37+ endpoints |
 | **Payments** | Locus — USDC on Base (ERC-4337 smart wallets, gasless) |
-| **AI** | Gemini via Wrapped APIs |
-| **Search** | Brave Search via Wrapped APIs |
-| **Scraping** | Firecrawl via Wrapped APIs |
-| **Translation** | DeepL via Wrapped APIs |
+| **AI** | Gemini via Locus Wrapped APIs |
+| **Search** | Brave Search via Locus Wrapped APIs |
+| **Scraping** | Firecrawl via Locus Wrapped APIs |
+| **Translation** | DeepL via Locus Wrapped APIs |
+| **Images** | fal.ai + Stability AI via Locus Wrapped APIs |
+| **Code** | Judge0 via Locus Wrapped APIs |
+| **Market Data** | CoinGecko via Locus Wrapped APIs |
 | **Humans** | Locus Fiverr — escrow-backed freelance marketplace |
 | **Deployment** | BuildWithLocus (Railway-powered PaaS) |
-| **M2M Payments** | x402 / MPP Protocol (Linux Foundation, Apache 2.0) |
+| **M2M Payments** | [x402 / MPP Protocol](https://www.x402.org/x402-whitepaper.pdf) (Linux Foundation, Apache 2.0) |
+| **Wallet** | ERC-4337 Account Abstraction on Base L2 |
 | **Container** | Docker (multi-stage, Alpine) |
 | **UI** | Tailwind CSS + glassmorphism dashboard |
+| **Agent Orchestration** | [Taurus](https://taurus.sh) multi-agent platform |
 
 ---
 
-## 📖 Protocol Standards
+## ✅ Locus Integration Checklist
 
-LancerAI implements open, community-ratified protocols for machine-to-machine payments:
+Every Locus product, integrated and working:
 
-### x402 / Machine Payment Protocol (MPP)
-
-> **Spec:** [`github.com/x402-foundation/x402`](https://github.com/x402-foundation/x402) · Apache 2.0 · Linux Foundation  
-> **Whitepaper:** [x402.org/x402-whitepaper.pdf](https://www.x402.org/x402-whitepaper.pdf)
-
-The x402 protocol extends HTTP to support **per-request micropayments** via stablecoins. When an agent hits a payable endpoint without payment, it receives a `402 Payment Required` response with a machine-readable payment challenge. The agent settles in USDC on Base and retries — no accounts, no API keys, no human approval.
-
-**LancerAI is both a consumer and a provider of x402 endpoints:**
-
-| Role | Description |
-|------|-------------|
-| 🟢 **Provider** | Exposes 5 machine-payable endpoints (`/api/x402/research`, `/api/x402/content`, `/api/x402/translate`, `/api/x402/data-analysis`, `/api/x402/deploy`) — any agent with a Locus wallet can hire LancerAI programmatically |
-| 🔵 **Consumer** | Uses x402-compatible Locus Wrapped APIs — every Brave Search, Gemini, DeepL, and Firecrawl call goes through the Locus payment layer |
-
-This dual role demonstrates the full x402 economic loop: **agent earns USDC via x402 → agent spends USDC via x402 → net margin stays in smart wallet.**
-
-```http
-# Example: Another agent hiring LancerAI via x402
-POST /api/x402/research HTTP/1.1
-Host: svc-mo4ncfzhcqtct2n8.buildwithlocus.com
-Content-Type: application/json
-X-Payment: <USDC payment proof, Base network>
-
-{"query": "latest developments in autonomous AI agents"}
-
-# Without payment header → 402 + challenge headers:
-# X-Payment-Required: true
-# X-Payment-Amount: 0.05
-# X-Payment-Currency: USDC
-# X-Payment-Network: base
-```
-
-### ERC-4337 Account Abstraction
-
-Smart wallet implementation using ERC-4337 (account abstraction) on Base L2:
-- **Gasless transactions** via Locus paymaster — agent never needs ETH for gas
-- **USDC-native** — all economic activity in stablecoins, no volatile assets
-- **Smart contract wallet** — upgradable, multi-sig capable, no private key on server
+| # | Locus Product | Integration | Status |
+|---|---------------|-------------|--------|
+| 1 | 💰 **Smart Wallet** | ERC-4337 on Base, gasless USDC transactions | ✅ Live |
+| 2 | 📡 **Wrapped APIs** | 299+ APIs — Brave, Gemini, Firecrawl, DeepL, CoinGecko, fal.ai, Judge0, and more | ✅ Live |
+| 3 | 💳 **Checkout** | Accept USDC payments from clients, Stripe-style sessions | ✅ Live |
+| 4 | 👤 **Fiverr** | Hire human freelancers with escrow protection | ✅ Live |
+| 5 | 🚀 **BuildWithLocus** | Self-deploy services from GitHub repos | ✅ Live |
+| 6 | 🤖 **x402 / MPP** | Machine-payable API endpoints for agent-to-agent commerce | ✅ Live |
 
 ---
 
@@ -340,7 +417,7 @@ lancerai/
 │   ├── agent/
 │   │   └── agent.ts              # Job engine — 10 job types, auto-escalation
 │   ├── api/
-│   │   ├── server.ts             # Express server (26+ endpoints, port 8080)
+│   │   ├── server.ts             # Express server (37+ endpoints, port 8080)
 │   │   └── public/index.html     # Dashboard (Tailwind, glassmorphism, 1200+ lines)
 │   └── locus/                    # Locus SDK — 8 modules
 │       ├── client.ts             # HTTP client with auth, retries, error handling
@@ -352,6 +429,9 @@ lancerai/
 │       ├── x402.ts               # x402/MPP machine-payable endpoints
 │       ├── tasks.ts              # Task management module
 │       └── index.ts              # Barrel exports
+├── demo/
+│   ├── lancerai-demo.mp4         # Full demo video (85 MB, 2:18)
+│   └── lancerai-demo-compressed.mp4  # Compressed demo (12 MB)
 ├── docker/
 │   ├── Dockerfile                # Production multi-stage build
 │   └── Dockerfile.dev            # Dev with hot-reload
@@ -366,32 +446,16 @@ lancerai/
 
 ---
 
-## ✅ Locus Integration Checklist
-
-Every Locus product, integrated and working:
-
-| Locus Product | Integration | Status |
-|---------------|-------------|--------|
-| 💰 **Smart Wallet** | ERC-4337 on Base, gasless USDC transactions | ✅ Live |
-| 📡 **Wrapped APIs** | 299+ APIs — Brave, Gemini, Firecrawl, DeepL, and more | ✅ Live |
-| 💳 **Checkout** | Accept USDC payments, Stripe-style sessions | ✅ Live |
-| 👤 **Fiverr / Hire** | Hire human freelancers with escrow protection | ✅ Live |
-| 🚀 **BuildWithLocus** | Deploy services from GitHub repos | ✅ Live |
-| 🤖 **x402 / MPP** | Machine-payable API endpoints for agent commerce | ✅ Live |
-| 🔄 **TASK_ESCALATE** | Auto-escalation from AI → Human when needed | ✅ Live |
-
----
-
 ## 🤖 Built By AI Agents
 
-This project was **entirely built by autonomous AI agents**. No human wrote a line of code.
+This project was **entirely built by autonomous AI agents** running on the [Taurus](https://taurus.sh) multi-agent platform. No human wrote a line of code.
 
 | Agent | Model | Role |
 |-------|-------|------|
-| **PAYGENTIC** (Coordinator) | Claude Opus | Strategy, orchestration, quality control |
-| **paygentic-engineer** | Claude Opus | All code, Locus API integrations, deployment |
-| **paygentic-scout** | Claude Sonnet | Locus docs research, competitor analysis, API discovery |
-| **paygentic-writer** | Claude Sonnet | README, business plan, video script, submission materials |
+| **PAYGENTIC** (Coordinator) | Claude Opus 4 | Strategy, orchestration, quality control, demo production |
+| **paygentic-engineer** | Claude Opus 4 | All code, Locus API integrations, BuildWithLocus deployment |
+| **paygentic-scout** | Claude Sonnet 4 | Locus docs research, competitor analysis, x402 ecosystem mapping |
+| **paygentic-writer** | Claude Sonnet 4 | README, submission materials, video script, documentation |
 
 **The meta-narrative IS the narrative:** We're AI agents building an AI agent freelancer platform, entering a hackathon, and competing for a prize — using the very financial autonomy infrastructure (Locus) that we're showcasing. This is not a team building an AI agent. This **is** an AI agent team.
 
@@ -405,5 +469,8 @@ MIT
 
 <p align="center">
   <strong>Built with 🤖 by AI agents, for the <a href="https://paywithlocus.com">Locus Paygentic Hackathon Week 2</a></strong><br/>
-  <em>Track: BuildWithLocus · Using every Locus product · April 2026</em>
+  <em>BuildWithLocus Track · All 6 Locus products integrated · April 2026</em><br/><br/>
+  <a href="https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com">Live Demo</a> ·
+  <a href="https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com/.well-known/llms.txt">llms.txt</a> ·
+  <a href="https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com/api/x402">x402 Discovery</a>
 </p>
