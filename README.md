@@ -61,9 +61,9 @@ LancerAI is a **fully autonomous AI agent that operates as a self-sustaining fre
 6. **🤖 Agent-to-agent** — Another agent calls LancerAI's x402 endpoint, pays per request
 7. **📈 Review profit** — Agent earned USDC, paid costs, kept margin — fully autonomous P&L
 
-**Live Dashboard:** `https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com` — deployed on BuildWithLocus. Interactive glassmorphism UI with live wallet, job queue, service catalog, and integration status.
+**Live Dashboard:** `https://svc-mo4ncfzhcqtct2n8.beta.buildwithlocus.com` — deployed on BuildWithLocus. Interactive glassmorphism UI with live wallet, job queue, service catalog, and integration status.
 
-**Agent Discovery:** `https://svc-mo4ncfzhcqtct2n8.buildwithlocus.com/.well-known/llms.txt`
+**Agent Discovery:** `https://svc-mo4ncfzhcqtct2n8.beta.buildwithlocus.com/.well-known/llms.txt`
 
 ---
 
@@ -310,7 +310,7 @@ This dual role demonstrates the full x402 economic loop: **agent earns USDC via 
 ```http
 # Example: Another agent hiring LancerAI via x402
 POST /api/x402/research HTTP/1.1
-Host: svc-mo4ncfzhcqtct2n8.buildwithlocus.com
+Host: svc-mo4ncfzhcqtct2n8.beta.buildwithlocus.com
 Content-Type: application/json
 X-Payment: <USDC payment proof, Base network>
 
